@@ -8,8 +8,11 @@
 
 #import <UIKit/UIKit.h>
 #import "SDDrawView.h"
+@class SDColorsPicker;
 
 @interface SDViewController : UIViewController <UIAlertViewDelegate, UIActionSheetDelegate>
+
+@property (nonatomic) BOOL acceptTouches;
 
 @property (nonatomic, strong) UIView *canvas;
 @property (nonatomic, strong) NSMutableArray *drawViews;
@@ -17,10 +20,15 @@
 @property (nonatomic, strong) SDDrawView *currentDrawView;
 @property (nonatomic) SDDrawMode currentDrawMode;
 
+@property (nonatomic, strong) UIBarButtonItem *toolButton;
+@property (nonatomic, strong) UIBarButtonItem *colorButton;
 @property (nonatomic, strong) UIBarButtonItem *undoBarButton;
 @property (nonatomic, strong) UIBarButtonItem *redoBarButton;
 @property (nonatomic, strong) UIBarButtonItem *clearBarButton;
 
 @property (nonatomic, strong) UIActionSheet *menuActionSheet;
+
+@property (nonatomic, strong) SDColorsPicker *mainColorPicker;
+@property (nonatomic) BOOL isShowingColorPicker;
 
 @end

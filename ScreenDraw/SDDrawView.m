@@ -7,6 +7,7 @@
 //
 
 #import "SDDrawView.h"
+#import "UserPrefs.h"
 
 static int viewNumber = 0;
 
@@ -39,18 +40,15 @@ NSString *const KEY_END_POINT = @"End_Point";
 }
 
 - (void)drawRect:(CGRect)rect {
+    UIColor *lineColor = [UserPrefs getLineColor];
+    UIColor *fillColor = [UserPrefs getFillColor];
+    
     CGContextRef context = UIGraphicsGetCurrentContext();
     
     CGContextSetLineWidth(context, 2.0);
     
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    
-    CGFloat components[] = {0.0, 0.0, 1.0, 1.0};
-    
-    CGColorRef color = CGColorCreate(colorspace, components);
-    
-    CGContextSetStrokeColorWithColor(context, color);
-        
+
     CGPoint startPoint;
     CGPoint endPoint;
     BOOL hasStartPoint = NO;
@@ -75,9 +73,13 @@ NSString *const KEY_END_POINT = @"End_Point";
         CGContextAddEllipseInRect(context, newRect);
     }
     
+    CGContextSetStrokeColorWithColor(context, [lineColor CGColor]);
     CGContextStrokePath(context);
+    
+    CGContextSetFillColorWithColor(context, [fillColor CGColor]);
+    CGContextFillPath(context);
+    
     CGColorSpaceRelease(colorspace);
-    CGColorRelease(color);
 }
 
 - (void)addPoint:(CGPoint)point

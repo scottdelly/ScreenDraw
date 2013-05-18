@@ -8,19 +8,32 @@
 
 #import "SDViewController.h"
 #import "UserPrefs.h"
+#import "SDColorsPicker.h"
+#import "ISColorWheel.h"
+
+@interface SDViewController () <SDColorsPickerDelegate>
+
+@end
 
 @implementation SDViewController
+@synthesize acceptTouches;
 @synthesize canvas;
 @synthesize drawViews;
 @synthesize redoDrawViews;
+@synthesize toolButton, colorButton;
 @synthesize undoBarButton, redoBarButton, clearBarButton;
-@synthesize menuActionSheet;
+@synthesize menuActionSheet, mainColorPicker;
+@synthesize isShowingColorPicker;
+@synthesize currentDrawMode = _currentDrawMode;
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
+        self.acceptTouches = YES;
         self.drawViews = [NSMutableArray arrayWithCapacity:2];
         self.redoDrawViews = [NSMutableArray arrayWithCapacity:2];
+        self.isShowingColorPicker = NO;
+        self.currentDrawMode = [UserPrefs getDrawMode];
     }
     return self;
 }
@@ -33,6 +46,10 @@
     self.canvas = [[UIView alloc] initWithFrame:fullScreen];
     [self.view addSubview:self.canvas];
     self.menuActionSheet = [[UIActionSheet alloc] initWithTitle:@"Draw Mode" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Line", @"Rectangle", @"Elipse", nil];
+    self.mainColorPicker = [[SDColorsPicker alloc] initWithNibName:nil bundle:nil];
+    [self.mainColorPicker setDelegate:self];
+    [self addChildViewController:self.mainColorPicker];
+    [self.view addSubview:self.mainColorPicker.view];
 }
 
 - (void)viewWillAppear:(BOOL)animated
@@ -40,7 +57,9 @@
     [super viewWillAppear:animated];
     [self updateCanvas];
     if (self.navigationController) {
-        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithTitle:@"Menu" style:UIBarButtonItemStylePlain target:self action:@selector(menuButtonPressed)];
+        self.toolButton = [[UIBarButtonItem alloc] initWithTitle:@"Tool" style:UIBarButtonItemStylePlain target:self action:@selector(toolButtonPressed)];
+        self.colorButton = [[UIBarButtonItem alloc] initWithTitle:@"Color" style:UIBarButtonItemStylePlain target:self action:@selector(colorButtonPressed)];
+        self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:self.toolButton, self.colorButton, nil];
         
         self.undoBarButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(undoButtonPressed)];
         self.redoBarButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFastForward target:self action:@selector(redoButtonPressed)];
@@ -59,6 +78,9 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if (!self.acceptTouches) {
+        return [super touchesBegan:touches withEvent:event];
+    }
     NSLog(@"Touches began");
     //Create a new SDDrawView
     self.currentDrawView = [[SDDrawView alloc] initWithFrame:self.view.frame drawMode:self.currentDrawMode];
@@ -72,6 +94,9 @@
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if (!self.acceptTouches) {
+        return [super touchesBegan:touches withEvent:event];
+    }
 //    NSLog(@"touches moved");
     //Update current SDDrawView
     UITouch *touch = [touches anyObject];
@@ -81,6 +106,9 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if (!self.acceptTouches) {
+        return [super touchesBegan:touches withEvent:event];
+    }
     NSLog(@"touches ended");
     UITouch *touch = [touches anyObject];
     CGPoint point = [touch locationInView:self.currentDrawView];
@@ -102,10 +130,24 @@
 
 }
 
-- (void)menuButtonPressed
+- (void)toolButtonPressed
 {
-    NSLog(@"Menu Button Pressed");
+    NSLog(@"Tool Button Pressed");
     [self.menuActionSheet showInView:self.view];
+}
+
+- (void)colorButtonPressed
+{
+    NSLog(@"Color Button Pressed");
+    if (self.isShowingColorPicker) {
+        [self.mainColorPicker hide];
+        [self setAcceptTouches:YES];
+    } else {
+        [self.view bringSubviewToFront:self.mainColorPicker.view];
+        [self.mainColorPicker show];
+        [self setAcceptTouches:NO];
+    }
+    self.isShowingColorPicker = !self.isShowingColorPicker;
 }
 
 - (void)undoButtonPressed
@@ -147,6 +189,12 @@
     [clearAlert show];
 }
 
+- (void)setCurrentDrawMode:(SDDrawMode)currentDrawMode
+{
+    _currentDrawMode = currentDrawMode;
+    [UserPrefs setDrawMode:currentDrawMode];
+}
+
 #pragma mark - AlertViewDelegate Methods
 
 - (void)alertView:(UIAlertView *)alertView didDismissWithButtonIndex:(NSInteger)buttonIndex
@@ -162,6 +210,7 @@
             }
         }
         [self.drawViews removeAllObjects];
+        [self.redoDrawViews removeAllObjects];
         [self updateBarButtons];
     }
 }
@@ -174,6 +223,12 @@
     if (buttonIndex < numModes) {
         [self setCurrentDrawMode:buttonIndex];
     }
+}
+
+#pragma mark - SDColorPickerDelegate Methods
+-(void)colorsDidChange
+{
+    [self updateCanvas];
 }
 
 @end
