@@ -86,6 +86,7 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
 @synthesize cursorRadius = _cursorRadius;
 @synthesize brightness = _brightness;
 @synthesize delegate;
+@synthesize touchPoint = _touchPoint;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -93,10 +94,11 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
     {
         _brightness = 1.0;
         _cursorRadius = 8;
-        _touchPoint = CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0);
+        self.touchPoint = CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0);
         self.backgroundColor = [UIColor clearColor];
         
         _continuous = false;
+        _radius = (MIN(self.frame.size.width, self.frame.size.height) / 2.0) - 1.0;
     }
     return self;
 }
@@ -124,6 +126,13 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
 
 //- (CGPoint)pointForColor:(UIColor *)color
 //{
+//    //get HSB
+//    //angle = hue * M_PI * 2.0f
+//    //dist = sat * _radius
+//    atan2(x, y) = angle - M_PI;
+//    pointx-centerx = cos(x);
+//    pointy-centey = sin(y);
+//    angle  = atan2(a, b ) + M_PI;
 //    return nil;
 //}
 
@@ -185,7 +194,7 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
 
 - (UIColor*)currentColor
 {
-    PixelRGB pixel = [self colorAtPoint:[self viewToImageSpace:_touchPoint]];    
+    PixelRGB pixel = [self colorAtPoint:[self viewToImageSpace:self.touchPoint]];    
     return [UIColor colorWithRed:pixel.r / 255.0f green:pixel.g / 255.0f blue:pixel.b / 255.0f alpha:1.0];
 }
 
@@ -211,7 +220,7 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
     
     CGContextSetLineWidth(ctx, 1.0);
     CGContextSetStrokeColorWithColor(ctx, [[UIColor blackColor] CGColor]);
-    CGContextAddEllipseInRect(ctx, CGRectMake(_touchPoint.x - _cursorRadius, _touchPoint.y - _cursorRadius, _cursorRadius * 2.0, _cursorRadius * 2.0));
+    CGContextAddEllipseInRect(ctx, CGRectMake(self.touchPoint.x - _cursorRadius, self.touchPoint.y - _cursorRadius, _cursorRadius * 2.0, _cursorRadius * 2.0));
 //    CGContextAddEllipseInRect(ctx, CGRectMake(center.x - _radius, center.y - _radius, _radius * 2.0, _radius * 2.0)); ///This draws a black circle around the color picker
     CGContextStrokePath(ctx);
 
@@ -221,7 +230,6 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
 - (void)layoutSubviews
 {
     [super layoutSubviews];
-    _radius = (MIN(self.frame.size.width, self.frame.size.height) / 2.0) - 1.0;
     [self updateImage];
 }
 

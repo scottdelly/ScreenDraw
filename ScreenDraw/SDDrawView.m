@@ -23,6 +23,7 @@ NSString *const KEY_END_POINT = @"End_Point";
 @implementation SDDrawView
 
 @synthesize title;
+@synthesize lineSize;
 
 + (int)getViewNumber
 {
@@ -35,6 +36,7 @@ NSString *const KEY_END_POINT = @"End_Point";
         NSLog(@"New view with title: %@", self.title);
         [self setDrawMode:mode];
         self.points = [NSMutableDictionary dictionaryWithCapacity:2];
+        self.lineSize = 2;
     }
     return self;
 }
@@ -45,19 +47,22 @@ NSString *const KEY_END_POINT = @"End_Point";
     
     CGContextRef context = UIGraphicsGetCurrentContext();
     
-    CGContextSetLineWidth(context, 2.0);
+    CGContextSetLineWidth(context, self.lineSize);
     
-    CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-
+    CGContextSetStrokeColorWithColor(context, [lineColor CGColor]);
+    CGContextSetFillColorWithColor(context, [fillColor CGColor]);
+    
+    NSInteger pointCount = [self.points count];
+    
     CGPoint startPoint;
     CGPoint endPoint;
     BOOL hasStartPoint = NO;
     BOOL hasEndPoint = NO;
-    if ([self.points objectForKey:KEY_START_POINT]) {
+    if (pointCount > 1 && [self.points objectForKey:KEY_START_POINT]) {
         startPoint = [[self.points objectForKey:KEY_START_POINT] CGPointValue];
         hasStartPoint = YES;
     }
-    if ([self.points objectForKey:KEY_END_POINT] ) {
+    if (pointCount > 1 && [self.points objectForKey:KEY_END_POINT] ) {
         endPoint = [[self.points objectForKey:KEY_END_POINT] CGPointValue];
         hasEndPoint = YES;
     }
@@ -65,21 +70,25 @@ NSString *const KEY_END_POINT = @"End_Point";
     if (self.drawMode == drawModeLine && hasStartPoint && hasEndPoint) {
         CGContextMoveToPoint(context, startPoint.x, startPoint.y);
         CGContextAddLineToPoint(context, endPoint.x, endPoint.y);
+        CGContextStrokePath(context);
     } else if (self.drawMode == drawModeRect && hasStartPoint && hasEndPoint) {
         CGRect newRect = CGRectMake(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-        CGContextAddRect(context, newRect);
+        CGContextStrokeRect(context, newRect);
+        CGContextFillRect(context, newRect);
     } else if (self.drawMode == drawModeElipse && hasStartPoint && hasEndPoint){
         CGRect newRect = CGRectMake(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-        CGContextAddEllipseInRect(context, newRect);
+        CGContextStrokeEllipseInRect(context, newRect);
+        CGContextFillEllipseInRect(context, newRect);
+    } else if (self.drawMode == drawModeFree && pointCount > 0){
+        CGRect pointRect = CGRectMake(0, 0, 8, 8);
+        for (NSString *key in self.points) {
+            CGPoint point = [[self.points objectForKey:key] CGPointValue];
+            pointRect.origin.x = point.x - pointRect.size.width/2;
+            pointRect.origin.y = point.y - pointRect.size.height/2;
+            CGContextAddEllipseInRect(context, pointRect);
+            CGContextFillEllipseInRect(context, pointRect);
+        }
     }
-    
-    CGContextSetStrokeColorWithColor(context, [lineColor CGColor]);
-    CGContextStrokePath(context);
-    
-    CGContextSetFillColorWithColor(context, [fillColor CGColor]);
-    CGContextFillPath(context);
-    
-    CGColorSpaceRelease(colorspace);
 }
 
 - (void)addPoint:(CGPoint)point
@@ -112,6 +121,17 @@ NSString *const KEY_END_POINT = @"End_Point";
         return @"Rectangle";
     }
     return @"Line";
+}
+
+- (CGRect) insideRectForRect:(CGRect)outsideRect
+{
+    CGRect insideRect = outsideRect;
+    insideRect.origin.x += self.lineSize;
+    insideRect.origin.y += self.lineSize;
+    insideRect.size.width -= 2* self.lineSize;
+    insideRect.size.height -= 2*self.lineSize;
+    
+    return insideRect;
 }
 
 @end

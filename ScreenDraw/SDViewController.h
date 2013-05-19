@@ -26,7 +26,7 @@
 @property (nonatomic, strong) UIBarButtonItem *redoBarButton;
 @property (nonatomic, strong) UIBarButtonItem *clearBarButton;
 
-@property (nonatomic, strong) UIActionSheet *menuActionSheet;
+@property (nonatomic, strong) UIActionSheet *toolActionSheet;
 
 @property (nonatomic, strong) SDColorsPicker *mainColorPicker;
 @property (nonatomic) BOOL isShowingColorPicker;

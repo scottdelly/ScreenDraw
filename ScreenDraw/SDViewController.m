@@ -22,7 +22,7 @@
 @synthesize redoDrawViews;
 @synthesize toolButton, colorButton;
 @synthesize undoBarButton, redoBarButton, clearBarButton;
-@synthesize menuActionSheet, mainColorPicker;
+@synthesize toolActionSheet, mainColorPicker;
 @synthesize isShowingColorPicker;
 @synthesize currentDrawMode = _currentDrawMode;
 
@@ -30,7 +30,9 @@
 {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
         self.acceptTouches = YES;
-        self.drawViews = [NSMutableArray arrayWithCapacity:2];
+        if (!(self.drawViews = [UserPrefs getDrawViews])) {
+            self.drawViews = [NSMutableArray arrayWithCapacity:2];
+        }
         self.redoDrawViews = [NSMutableArray arrayWithCapacity:2];
         self.isShowingColorPicker = NO;
         self.currentDrawMode = [UserPrefs getDrawMode];
@@ -45,7 +47,7 @@
     CGRect fullScreen = CGRectMake(0, 0, self.view.frame.size.width, canvasHeight);
     self.canvas = [[UIView alloc] initWithFrame:fullScreen];
     [self.view addSubview:self.canvas];
-    self.menuActionSheet = [[UIActionSheet alloc] initWithTitle:@"Draw Mode" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Line", @"Rectangle", @"Elipse", nil];
+    self.toolActionSheet = [[UIActionSheet alloc] initWithTitle:@"Draw Mode" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Line", @"Rectangle", @"Elipse", @"Brush", nil];
     self.mainColorPicker = [[SDColorsPicker alloc] initWithNibName:nil bundle:nil];
     [self.mainColorPicker setDelegate:self];
     [self addChildViewController:self.mainColorPicker];
@@ -56,17 +58,20 @@
 {
     [super viewWillAppear:animated];
     [self updateCanvas];
+    for (SDDrawView *drawView in self.drawViews) {
+        [self.view addSubview:drawView];
+        [self.view bringSubviewToFront:drawView];
+    }
     if (self.navigationController) {
         self.toolButton = [[UIBarButtonItem alloc] initWithTitle:@"Tool" style:UIBarButtonItemStylePlain target:self action:@selector(toolButtonPressed)];
-        self.colorButton = [[UIBarButtonItem alloc] initWithTitle:@"Color" style:UIBarButtonItemStylePlain target:self action:@selector(colorButtonPressed)];
-        self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:self.toolButton, self.colorButton, nil];
+        self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:self.toolButton, nil];
         
         self.undoBarButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemRewind target:self action:@selector(undoButtonPressed)];
         self.redoBarButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemFastForward target:self action:@selector(redoButtonPressed)];
         self.clearBarButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemTrash target:self action:@selector(clearButtonPressed)];
-        
-        self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:self.clearBarButton, self.redoBarButton, self.undoBarButton, nil];
-        
+        self.colorButton = [[UIBarButtonItem alloc] initWithTitle:@"Color" style:UIBarButtonItemStylePlain target:self action:@selector(colorButtonPressed)];
+        self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:self.colorButton, self.clearBarButton, self.redoBarButton, self.undoBarButton, nil];
+
         [self updateBarButtons];
     }
 }
@@ -116,6 +121,8 @@
     [self.drawViews addObject:self.currentDrawView];
     [self updateBarButtons];
     self.currentDrawView = nil;
+    
+    [UserPrefs storeDrawViews:self.drawViews];
     //Close SDDrawView
 }
 
@@ -133,7 +140,7 @@
 - (void)toolButtonPressed
 {
     NSLog(@"Tool Button Pressed");
-    [self.menuActionSheet showInView:self.view];
+    [self.toolActionSheet showInView:self.view];
 }
 
 - (void)colorButtonPressed

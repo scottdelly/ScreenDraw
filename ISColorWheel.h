@@ -15,12 +15,13 @@
     UIImage* _radialImage;
     float _radius;
     float _cursorRadius;
-    CGPoint _touchPoint;
+//    CGPoint _touchPoint;
     float _brightness;
     bool _continuous;
     id <ISColorWheelDelegate> _delegate;
     
 }
+@property (nonatomic) CGPoint touchPoint;
 @property(nonatomic)float radius;
 @property(nonatomic)float cursorRadius;
 @property(nonatomic)float brightness;

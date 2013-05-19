@@ -15,6 +15,7 @@ typedef enum SDDrawMode{
     drawModeLine,
     drawModeRect,
     drawModeElipse,
+    drawModeFree,
     numModes
 }SDDrawMode;
 
@@ -22,6 +23,7 @@ typedef enum SDDrawMode{
 
 @property (nonatomic) SDDrawMode drawMode;
 @property (nonatomic, strong) NSString *title;
+@property (nonatomic) NSInteger lineSize;
 
 - (id)initWithFrame:(CGRect)frame drawMode:(SDDrawMode)mode;
 - (void)addPoint:(CGPoint)point;

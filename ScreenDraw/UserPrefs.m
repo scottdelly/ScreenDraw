@@ -8,12 +8,29 @@
 
 #import "UserPrefs.h"
 
+NSString *const KEY_DRAW_VIEWS = @"Draw_Views";
 NSString *const KEY_BACKGROUND_COLOR = @"Background_Color";
 NSString *const KEY_LINE_COLOR = @"Line_Color";
 NSString *const KEY_FILL_COLOR = @"Fill_Color";
 NSString *const KEY_DRAW_MODE = @"Draw_Mode";
 
 @implementation UserPrefs
+
++ (NSMutableArray *)getDrawViews
+{
+    NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_DRAW_VIEWS];
+    if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
+        return (NSMutableArray *)[NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
+    }
+    return nil;
+}
+
++ (void)storeDrawViews:(NSMutableArray *)drawViews
+{
+    NSData *drawViewsData = [NSKeyedArchiver archivedDataWithRootObject:drawViews];
+    [[NSUserDefaults standardUserDefaults] setObject:drawViewsData forKey:KEY_DRAW_VIEWS];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
 
 + (UIColor *)getBackgroundColor
 {
@@ -76,18 +93,35 @@ NSString *const KEY_DRAW_MODE = @"Draw_Mode";
     [prefs synchronize];
 }
 
-+ (void)storeColor:(UIColor *)color forKey:(id)key
++ (void)storeColor:(UIColor *)color forKey:(NSString *)key
 {
     NSData *colorData = [NSKeyedArchiver archivedDataWithRootObject:color];
     [[NSUserDefaults standardUserDefaults] setObject:colorData forKey:key];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-+ (UIColor *)retrieveColorForKey:(id)key
++ (UIColor *)retrieveColorForKey:(NSString *)key
 {
     NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
     if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
         return (UIColor *)[NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
+    }
+    return nil;
+}
+
++ (void)storePoint:(CGPoint)point forKey:(NSString *)key
+{
+    NSValue *pointValue = [NSValue valueWithCGPoint:point];
+    NSData *pointData = [NSKeyedArchiver archivedDataWithRootObject:pointValue];
+    [[NSUserDefaults standardUserDefaults] setObject:pointData forKey:key];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++ (NSValue *)retrievePointValueForKey:(NSString *)key
+{
+    NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+    if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
+        return (NSValue *)[NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
     }
     return nil;
 }
