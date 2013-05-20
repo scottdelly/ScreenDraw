@@ -15,7 +15,6 @@
 - (void)loadView
 {
     [super loadView];
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     NSValue *storedPointValue;
     NSString *tagString;
 
@@ -39,7 +38,7 @@
 
     labelFrame.origin.y += 182;
     UILabel *lineColorLabel = [[UILabel alloc] initWithFrame:labelFrame];
-    [lineColorLabel setText:@"Line Color"];
+    [lineColorLabel setText:@"Stroke Color"];
     [lineColorLabel setBackgroundColor:[UIColor clearColor]];
     [lineColorLabel setFont:[UIFont systemFontOfSize:10]];
     [lineColorLabel setTextAlignment:NSTextAlignmentCenter];

@@ -19,14 +19,21 @@ typedef enum SDDrawMode{
     numModes
 }SDDrawMode;
 
-@interface SDDrawView : UIView
+@interface SDDrawView : UIView <NSCoding>
 
-@property (nonatomic) SDDrawMode drawMode;
 @property (nonatomic, strong) NSString *title;
+@property (nonatomic, strong) NSMutableDictionary *points;
+
+//Properties from NSUD
+@property (nonatomic) SDDrawMode drawMode;
+@property (nonatomic, strong) UIColor *strokeColor;
+@property (nonatomic, strong) UIColor *fillColor;
 @property (nonatomic) NSInteger lineSize;
 
-- (id)initWithFrame:(CGRect)frame drawMode:(SDDrawMode)mode;
+
+- (id)initWithFrame:(CGRect)frame;
 - (void)addPoint:(CGPoint)point;
+- (void)setStartPoint:(CGPoint)point;
 - (void)setEndPoint:(CGPoint)point;
 - (NSString *)nameForMode:(SDDrawMode)mode;
 

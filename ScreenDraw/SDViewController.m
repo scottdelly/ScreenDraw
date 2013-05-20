@@ -16,7 +16,6 @@
 @end
 
 @implementation SDViewController
-@synthesize acceptTouches;
 @synthesize canvas;
 @synthesize drawViews;
 @synthesize redoDrawViews;
@@ -29,7 +28,6 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        self.acceptTouches = YES;
         if (!(self.drawViews = [UserPrefs getDrawViews])) {
             self.drawViews = [NSMutableArray arrayWithCapacity:2];
         }
@@ -52,16 +50,26 @@
     [self.mainColorPicker setDelegate:self];
     [self addChildViewController:self.mainColorPicker];
     [self.view addSubview:self.mainColorPicker.view];
+    self.OBLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, self.view.frame.size.width, 30)];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
     [self updateCanvas];
-    for (SDDrawView *drawView in self.drawViews) {
-        [self.view addSubview:drawView];
-        [self.view bringSubviewToFront:drawView];
+    if ([self.drawViews count] > 0) {
+        for (SDDrawView *drawView in self.drawViews) {
+            [self.view addSubview:drawView];
+            [self.view bringSubviewToFront:drawView];
+        }
+    } else {
+        [self.OBLabel setText:@"Touch the screen to draw"];
+        [self.OBLabel setTextAlignment:NSTextAlignmentCenter];
+        [self.OBLabel setTextColor:[UIColor grayColor]];
+        [self.OBLabel setBackgroundColor:[UIColor clearColor]];
+        [self.view addSubview:self.OBLabel];
     }
+
     if (self.navigationController) {
         self.toolButton = [[UIBarButtonItem alloc] initWithTitle:@"Tool" style:UIBarButtonItemStylePlain target:self action:@selector(toolButtonPressed)];
         self.navigationItem.leftBarButtonItems = [NSArray arrayWithObjects:self.toolButton, nil];
@@ -83,12 +91,19 @@
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (!self.acceptTouches) {
-        return [super touchesBegan:touches withEvent:event];
+    if (self.isShowingColorPicker) {
+        if ([event touchesForView:self.mainColorPicker.view]) {
+            return [super touchesBegan:touches withEvent:event];
+        } else {
+            [self toggleColorPickers];
+        }
     }
     NSLog(@"Touches began");
     //Create a new SDDrawView
-    self.currentDrawView = [[SDDrawView alloc] initWithFrame:self.view.frame drawMode:self.currentDrawMode];
+    if (self.OBLabel.superview) {
+        [self.OBLabel removeFromSuperview];
+    }
+    self.currentDrawView = [[SDDrawView alloc] initWithFrame:self.view.frame];
     [self.currentDrawView setBackgroundColor:[UIColor clearColor]];
     [self.view addSubview:self.currentDrawView];
 
@@ -99,10 +114,9 @@
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (!self.acceptTouches) {
+    if (self.isShowingColorPicker) {
         return [super touchesBegan:touches withEvent:event];
     }
-//    NSLog(@"touches moved");
     //Update current SDDrawView
     UITouch *touch = [touches anyObject];
     CGPoint point = [touch locationInView:self.currentDrawView];
@@ -111,7 +125,7 @@
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if (!self.acceptTouches) {
+    if (self.isShowingColorPicker) {
         return [super touchesBegan:touches withEvent:event];
     }
     NSLog(@"touches ended");
@@ -123,7 +137,6 @@
     self.currentDrawView = nil;
     
     [UserPrefs storeDrawViews:self.drawViews];
-    //Close SDDrawView
 }
 
 - (void)updateBarButtons
@@ -134,7 +147,6 @@
     [self.undoBarButton setEnabled:hasViews];
     [self.redoBarButton setEnabled:hasRedoViews];
     [self.clearBarButton setEnabled:hasViews];
-
 }
 
 - (void)toolButtonPressed
@@ -146,15 +158,19 @@
 - (void)colorButtonPressed
 {
     NSLog(@"Color Button Pressed");
+    [self toggleColorPickers];
+}
+
+- (void)toggleColorPickers
+{
     if (self.isShowingColorPicker) {
         [self.mainColorPicker hide];
-        [self setAcceptTouches:YES];
+        [self setIsShowingColorPicker:NO];
     } else {
         [self.view bringSubviewToFront:self.mainColorPicker.view];
         [self.mainColorPicker show];
-        [self setAcceptTouches:NO];
+        [self setIsShowingColorPicker:YES];
     }
-    self.isShowingColorPicker = !self.isShowingColorPicker;
 }
 
 - (void)undoButtonPressed
@@ -218,6 +234,7 @@
         }
         [self.drawViews removeAllObjects];
         [self.redoDrawViews removeAllObjects];
+        [UserPrefs clearStoredDrawViews];
         [self updateBarButtons];
     }
 }

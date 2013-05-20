@@ -13,6 +13,7 @@ NSString *const KEY_BACKGROUND_COLOR = @"Background_Color";
 NSString *const KEY_LINE_COLOR = @"Line_Color";
 NSString *const KEY_FILL_COLOR = @"Fill_Color";
 NSString *const KEY_DRAW_MODE = @"Draw_Mode";
+NSString *const KEY_LINE_SIZE = @"Line_Size";
 
 @implementation UserPrefs
 
@@ -29,6 +30,12 @@ NSString *const KEY_DRAW_MODE = @"Draw_Mode";
 {
     NSData *drawViewsData = [NSKeyedArchiver archivedDataWithRootObject:drawViews];
     [[NSUserDefaults standardUserDefaults] setObject:drawViewsData forKey:KEY_DRAW_VIEWS];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++ (void)clearStoredDrawViews
+{
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:KEY_DRAW_VIEWS];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
@@ -90,6 +97,24 @@ NSString *const KEY_DRAW_MODE = @"Draw_Mode";
 {
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     [prefs setObject:[NSNumber numberWithInt:mode] forKey:KEY_DRAW_MODE];
+    [prefs synchronize];
+}
+
++ (CGFloat)getLineSize
+{
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    NSObject *tempObject = [prefs objectForKey:KEY_LINE_SIZE];
+    if (tempObject && [tempObject isKindOfClass:[NSNumber class]]) {
+        return (CGFloat)[(NSNumber *)tempObject floatValue];
+    } else {
+        return 2.0f;
+    }
+}
+
++ (void)storeLineSize:(CGFloat)size
+{
+    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+    [prefs setObject:[NSNumber numberWithInt:size] forKey:KEY_LINE_SIZE];
     [prefs synchronize];
 }
 

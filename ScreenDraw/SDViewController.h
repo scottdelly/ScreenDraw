@@ -12,8 +12,6 @@
 
 @interface SDViewController : UIViewController <UIAlertViewDelegate, UIActionSheetDelegate>
 
-@property (nonatomic) BOOL acceptTouches;
-
 @property (nonatomic, strong) UIView *canvas;
 @property (nonatomic, strong) NSMutableArray *drawViews;
 @property (nonatomic, strong) NSMutableArray *redoDrawViews;
@@ -25,6 +23,8 @@
 @property (nonatomic, strong) UIBarButtonItem *undoBarButton;
 @property (nonatomic, strong) UIBarButtonItem *redoBarButton;
 @property (nonatomic, strong) UIBarButtonItem *clearBarButton;
+
+@property (nonatomic, strong) UILabel *OBLabel;
 
 @property (nonatomic, strong) UIActionSheet *toolActionSheet;
 
