@@ -15,6 +15,22 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
 
 @implementation UserPrefs
 
++ (void)storeObject:(NSObject *)object forKey:(NSString *)key
+{
+    NSData *objectData = [NSKeyedArchiver archivedDataWithRootObject:object];
+    [[NSUserDefaults standardUserDefaults] setObject:objectData forKey:key];
+    [[NSUserDefaults standardUserDefaults] synchronize];
+}
+
++ (NSObject *)getObjectForKey:(NSString *)key
+{
+    NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+    if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
+        return [NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
+    }
+    return nil;
+}
+
 + (void)clearDataForKey:(NSString *)key
 {
     [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
@@ -55,31 +71,6 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
     NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
     [prefs setObject:[NSNumber numberWithInt:size] forKey:KEY_LINE_SIZE];
     [prefs synchronize];
-}
-
-+ (void)storeObject:(NSObject *)object forKey:(NSString *)key
-{
-    NSData *objectData = [NSKeyedArchiver archivedDataWithRootObject:object];
-    [[NSUserDefaults standardUserDefaults] setObject:objectData forKey:key];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-+ (NSObject *)getObjectForKey:(NSString *)key
-{
-    NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
-    if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
-        return [NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
-    }
-    return nil;
-}
-
-+ (UIColor *)getColorForKey:(NSString *)key
-{
-    NSObject *tempObject = [UserPrefs getObjectForKey:key];
-    if (tempObject && [tempObject isKindOfClass:[SDColorPickerView class]]) {
-        return [[(SDColorPickerView *)tempObject mainColorWheel] currentColor];
-    }
-    return nil;
 }
 
 + (void)storePoint:(CGPoint)point forKey:(NSString *)key

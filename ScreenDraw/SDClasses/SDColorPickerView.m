@@ -21,10 +21,10 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 
 @synthesize titleLabel;
 @synthesize mainColorWheel;
-@synthesize darknessSlider;
+@synthesize brightnessSlider;
 @synthesize clearButton;
 @synthesize masterColorButton;
-//@synthesize color;
+@synthesize isClear;
 
 - (id)init
 {
@@ -39,16 +39,15 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         
         currentDrawHeight += labelFrame.size.height;
         self.mainColorWheel = [[ISColorWheel alloc] initWithFrame:CGRectMake(0, currentDrawHeight, frame.size.width, frame.size.width)];
-        [self.mainColorWheel setDelegate:self];
-        [self.mainColorWheel setContinuous:YES];
+        [self setupColorWheel];
         
         currentDrawHeight += self.mainColorWheel.frame.size.height;
-        self.darknessSlider = [[UISlider alloc] initWithFrame:CGRectMake(0, currentDrawHeight, frame.size.width, 16)];
-        [self.darknessSlider addTarget:self action:@selector(darknessSliderDidChange) forControlEvents:UIControlEventAllEvents];
-        [self.darknessSlider setContinuous:YES];
-        [self.darknessSlider setValue:1];
+        self.brightnessSlider = [[UISlider alloc] initWithFrame:CGRectMake(0, currentDrawHeight, frame.size.width, 16)];
+        [self.brightnessSlider addTarget:self action:@selector(brightnessSliderDidChange) forControlEvents:UIControlEventAllEvents];
+        [self.brightnessSlider setContinuous:YES];
+        [self.brightnessSlider setValue:1];
         
-        currentDrawHeight += self.darknessSlider.frame.size.height + 5.0f;
+        currentDrawHeight += self.brightnessSlider.frame.size.height + 5.0f;
         self.clearButton = [[UIButton alloc] initWithFrame:CGRectMake(0, currentDrawHeight, frame.size.width/2, 22)];
         [self.clearButton setTitle:@"X" forState:UIControlStateNormal];
         [self.clearButton addTarget:self action:@selector(clearButtonPressed) forControlEvents:UIControlEventTouchUpInside];
@@ -60,10 +59,11 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         [self.masterColorButton setBackgroundColor:[UIColor grayColor]];
         
         [self addSubview:self.titleLabel];
-        [self addSubview:self.mainColorWheel];
-        [self addSubview:self.darknessSlider];
+        [self addSubview:self.brightnessSlider];
         [self addSubview:self.clearButton];
         [self addSubview:self.masterColorButton];
+        
+        self.isClear = NO;
     }
     return self;
 }
@@ -71,26 +71,28 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
     if (self = [self init]) {
-        [self.mainColorWheel setTouchPoint:[aDecoder decodeCGPointForKey:KEY_WHEEL_POINT]];
-        [self.darknessSlider setValue:[aDecoder decodeFloatForKey:KEY_SLIDER_VALUE]];
-        [self.mainColorWheel setBrightness:self.darknessSlider.value];
-        [self.mainColorWheel updateImage];
+        [self setMainColorWheel:[aDecoder decodeObject]];
+        [self.brightnessSlider setValue:[aDecoder decodeFloatForKey:KEY_SLIDER_VALUE]];
+        [self setupColorWheel];
     }
     return self;
 }
 
--(void)encodeWithCoder:(NSCoder *)aCoder
+- (void)encodeWithCoder:(NSCoder *)aCoder
 {
-    [super encodeWithCoder:aCoder];
-    [aCoder encodeCGPoint:self.mainColorWheel.touchPoint forKey:KEY_WHEEL_POINT];
-    [aCoder encodeFloat:self.darknessSlider.value forKey:KEY_SLIDER_VALUE];
+    [aCoder encodeObject:self.mainColorWheel];
+    [aCoder encodeFloat:self.brightnessSlider.value forKey:KEY_SLIDER_VALUE];
 }
 
-- (void)darknessSliderDidChange
+- (void)setupColorWheel
 {
-    [self.mainColorWheel setBrightness:self.darknessSlider.value];
-    [self.mainColorWheel updateImage];
-    [self colorWheelDidChangeColor:self.mainColorWheel];
+    [self.mainColorWheel setDelegate:self];
+    [self addSubview:self.mainColorWheel];
+}
+
+- (void)brightnessSliderDidChange
+{
+    [self.mainColorWheel setBrightness:self.brightnessSlider.value];
 }
 
 - (void)clearButtonPressed
@@ -99,6 +101,7 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
     if (self.delegate && [self.delegate respondsToSelector:@selector(SDColorPickerDidClearColor:)]) {
         [self.delegate SDColorPickerDidClearColor:self];
     }
+    [self.mainColorWheel setShowReticule:!self.mainColorWheel.showReticule];
 }
 
 - (void)masterButtonPressed

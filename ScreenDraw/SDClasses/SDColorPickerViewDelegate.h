@@ -12,5 +12,5 @@
 @required
 - (void)SDColorPickerDidChangeColor:(SDColorPickerView *)pickerView;
 - (void)SDColorPickerDidClearColor:(SDColorPickerView *)pickerView;
-- (void)SDColorPickerIsMasterPicker:(SDColorPickerView *)pickerView;
+- (void)SDColorPickerIsMasterPicker:(SDColorPickerView *)masterPickerView;
 @end

@@ -79,50 +79,61 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
 
 @end
 
+NSString *const KEY_FRAME = @"FRAME";
 NSString *const KEY_TOUCH_POINT = @"Touch_Point";
 
 @implementation ISColorWheel
-@synthesize radius = _radius;
-@synthesize cursorRadius = _cursorRadius;
+@synthesize radius;
+@synthesize cursorRadius;
 @synthesize brightness = _brightness;
 @synthesize delegate;
 @synthesize touchPoint = _touchPoint;
-@synthesize currentColor = _currentColor;
+@synthesize continuous;
+@synthesize showReticule = _showReticule;
+@synthesize reticuleColor;
 
 - (id)initWithFrame:(CGRect)frame
 {
     if (self = [super initWithFrame:frame])
     {
         _brightness = 1.0;
-        _cursorRadius = 8;
-        self.touchPoint = CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0);
+        self.cursorRadius = 8;
         self.backgroundColor = [UIColor clearColor];
-        
-        _continuous = false;
-        _radius = (MIN(self.frame.size.width, self.frame.size.height) / 2.0) - 1.0;
-        _currentColor = nil;
+        _touchPoint = CGPointMake(self.bounds.size.width / 2.0, self.bounds.size.height / 2.0);
+        self.continuous = false;
+        self.radius = (MIN(self.frame.size.width, self.frame.size.height) / 2.0) - 1.0;
+        self.radialImage = nil;
+        self.showReticule = YES;
+        [self postInit];
     }
     return self;
 }
 
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
-    if (self = [super initWithCoder:aDecoder]) {
-        [self setTouchPoint:[aDecoder decodeCGPointForKey:KEY_TOUCH_POINT]];
-        [self setCurrentColor:[aDecoder decodeObject]];
+    CGRect frame = [aDecoder decodeCGRectForKey:KEY_FRAME];
+    if (self = [self initWithFrame:frame]) {
+        _touchPoint = [aDecoder decodeCGPointForKey:KEY_TOUCH_POINT];
+        [self postInit];
     }
     return self;
 }
 
+- (void)postInit
+{
+    [self setReticuleColor];
+    [self updateImage];
+}
+
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
+    [aCoder encodeCGRect:self.frame forKey:KEY_FRAME];
     [aCoder encodeCGPoint:self.touchPoint forKey:KEY_TOUCH_POINT];
-    [aCoder encodeObject:self.currentColor];
 }
 
 - (PixelRGB)colorAtPoint:(CGPoint)point
 {
-    CGPoint center = CGPointMake(_radius, _radius);
+    CGPoint center = CGPointMake(self.radius, self.radius);
     
     float angle = atan2(point.x - center.x, point.y - center.y) + M_PI;
     float dist = ISColorWheel_PointDistance(point, CGPointMake(center.x, center.y));
@@ -132,25 +143,13 @@ NSString *const KEY_TOUCH_POINT = @"Touch_Point";
     hue = MIN(hue, 1.0f - .0000001f);
     hue = MAX(hue, 0.0f);
     
-    float sat = dist / (_radius);
+    float sat = dist / (self.radius);
     
     sat = MIN(sat, 1.0f);
     sat = MAX(sat, 0.0f);
     
-    return ISColorWheel_HSBToRGB(hue, sat, _brightness);
+    return ISColorWheel_HSBToRGB(hue, sat, self.brightness);
 }
-
-//- (CGPoint)pointForColor:(UIColor *)color
-//{
-//    //get HSB
-//    //angle = hue * M_PI * 2.0f
-//    //dist = sat * _radius
-//    atan2(x, y) = angle - M_PI;
-//    pointx-centerx = cos(x);
-//    pointy-centey = sin(y);
-//    angle  = atan2(a, b ) + M_PI;
-//    return nil;
-//}
 
 - (CGPoint)viewToImageSpace:(CGPoint)point
 {    
@@ -159,7 +158,7 @@ NSString *const KEY_TOUCH_POINT = @"Touch_Point";
     
     point.y = height - point.y;
         
-    CGPoint min = CGPointMake(width / 2 - _radius, height / 2 - _radius);
+    CGPoint min = CGPointMake(width / 2 - self.radius, height / 2 - self.radius);
     
     point.x = point.x - min.x;
     point.y = point.y - min.y;
@@ -167,13 +166,29 @@ NSString *const KEY_TOUCH_POINT = @"Touch_Point";
     return point;
 }
 
+- (void)setBrightness:(float)brightness
+{
+    _brightness = brightness;
+    self.radialImage = nil;
+    [self updateImage];
+    [self setReticuleColor];
+    if (self.showReticule) {
+        [self.delegate colorWheelDidChangeColor:self];
+    }
+}
+
 - (void)updateImage
 {
-    int width = _radius * 2.0;
-    int height = _radius * 2.0;
+    if (self.radialImage) {
+        return;
+    }
+
+    int width = self.radius *2;
+    int height = self.radius *2;
     
     int dataLength = sizeof(PixelRGB) * width * height;
-    PixelRGB* data = malloc(dataLength);
+    self.pixelData = [NSMutableData dataWithLength:dataLength];
+    PixelRGB* data = [self.pixelData mutableBytes];//malloc(dataLength);
     
     for (int y = 0; y < height; y++)
     {
@@ -201,25 +216,26 @@ NSString *const KEY_TOUCH_POINT = @"Touch_Point";
                                      kCGRenderingIntentDefault
                                      );
     
-    _radialImage = [UIImage imageWithCGImage:iref];
+    self.radialImage = [UIImage imageWithCGImage:iref];
+    
     
     CGImageRelease(iref);
+    CGColorSpaceRelease(colorspace);
+    CGDataProviderRelease(ref);
     
     [self setNeedsDisplay];
 }
 
 - (UIColor*)currentColor
 {
-    if (!_currentColor) {
-        PixelRGB pixel = [self colorAtPoint:[self viewToImageSpace:self.touchPoint]];
-        _currentColor = [UIColor colorWithRed:pixel.r / 255.0f green:pixel.g / 255.0f blue:pixel.b / 255.0f alpha:1.0];
-    }
-    return _currentColor;
+    PixelRGB pixel = [self colorAtPoint:[self viewToImageSpace:self.touchPoint]];
+    UIColor *currentColor = [UIColor colorWithRed:pixel.r / 255.0f green:pixel.g / 255.0f blue:pixel.b / 255.0f alpha:1.0];
+    return currentColor;
 }
 
 - (void)setCurrentColor:(UIColor*)color
 {
-    _currentColor = color;
+    
 }
 
 - (void)drawRect:(CGRect)rect
@@ -232,18 +248,26 @@ NSString *const KEY_TOUCH_POINT = @"Touch_Point";
     
     CGContextSaveGState (ctx);
     
-    CGContextAddEllipseInRect(ctx, CGRectMake(center.x - _radius, center.y - _radius, _radius * 2.0, _radius * 2.0));
+    CGContextAddEllipseInRect(ctx, CGRectMake(center.x - self.radius, center.y - self.radius, self.radius * 2.0, self.radius * 2.0));
     CGContextClip(ctx);
     
-    CGContextDrawImage(ctx, CGRectMake(center.x - _radius, center.y - _radius, _radius * 2.0, _radius * 2.0), [_radialImage CGImage]);
+    CGContextDrawImage(ctx, CGRectMake(center.x - self.radius, center.y - self.radius, self.radius * 2.0, self.radius * 2.0), [self.radialImage CGImage]);
     
-    CGContextSetLineWidth(ctx, 1.0);
-    CGContextSetStrokeColorWithColor(ctx, [[UIColor blackColor] CGColor]);
-    CGContextAddEllipseInRect(ctx, CGRectMake(self.touchPoint.x - _cursorRadius, self.touchPoint.y - _cursorRadius, _cursorRadius * 2.0, _cursorRadius * 2.0));
-//    CGContextAddEllipseInRect(ctx, CGRectMake(center.x - _radius, center.y - _radius, _radius * 2.0, _radius * 2.0)); ///This draws a black circle around the color picker
+
+    if (self.showReticule) {
+        CGContextSetLineWidth(ctx, 2.0);
+        CGContextSetStrokeColorWithColor(ctx, [self.reticuleColor CGColor]);
+            CGContextAddEllipseInRect(ctx, CGRectMake(self.touchPoint.x - self.cursorRadius, self.touchPoint.y - self.cursorRadius, self.cursorRadius * 2.0, self.cursorRadius * 2.0));
+        CGContextStrokePath(ctx);
+    }
+    CGSize shadowSize = CGSizeMake(0, 0);
+    CGContextSetShadowWithColor(ctx, shadowSize, 3, [[UIColor grayColor] CGColor]);
+
+    CGContextSetStrokeColorWithColor(ctx, [[UIColor grayColor] CGColor]);
+    CGContextAddEllipseInRect(ctx, CGRectMake(center.x - self.radius, center.y - self.radius, self.radius * 2.0, self.radius * 2.0)); ///This draws a circle around the color picker
     CGContextStrokePath(ctx);
 
-    CGContextRestoreGState (ctx);
+    CGContextRestoreGState(ctx);
 }
 
 - (void)layoutSubviews
@@ -255,11 +279,11 @@ NSString *const KEY_TOUCH_POINT = @"Touch_Point";
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
     [self setTouchPoint:[[touches anyObject] locationInView:self]];
+    self.showReticule = YES;
     [self setNeedsDisplay];
     
-    if (_continuous)
+    if (self.continuous)
     {
-        _currentColor = nil;
         [self.delegate colorWheelDidChangeColor:self];
     }
 }
@@ -269,16 +293,14 @@ NSString *const KEY_TOUCH_POINT = @"Touch_Point";
     [self setTouchPoint:[[touches anyObject] locationInView:self]];
     [self setNeedsDisplay];
     
-    if (_continuous)
+    if (self.continuous)
     {
-        _currentColor = nil;
         [self.delegate colorWheelDidChangeColor:self];
     }
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    _currentColor = nil;
     [self.delegate colorWheelDidChangeColor:self];
 }
 
@@ -290,7 +312,7 @@ NSString *const KEY_TOUCH_POINT = @"Touch_Point";
     CGPoint center = CGPointMake(width / 2.0, height / 2.0);
     
     // Check if the touch is outside the wheel
-    if (ISColorWheel_PointDistance(center, point) < _radius)
+    if (ISColorWheel_PointDistance(center, point) < self.radius)
     {
         _touchPoint = point;
     }
@@ -304,9 +326,33 @@ NSString *const KEY_TOUCH_POINT = @"Touch_Point";
         vec.x /= extents;
         vec.y /= extents;
         
-        _touchPoint = CGPointMake(center.x + vec.x * _radius, center.y + vec.y * _radius);
+        _touchPoint = CGPointMake(center.x + vec.x * self.radius, center.y + vec.y * self.radius);
     }
-    _currentColor = nil;
+    [self setReticuleColor];
+}
+
+- (void)setShowReticule:(BOOL)showReticule
+{
+    if (showReticule != _showReticule) {
+        _showReticule = showReticule;
+        [self setNeedsDisplay];
+    }
+    if (showReticule) {
+        [self.delegate colorWheelDidChangeColor:self];
+    }
+}
+
+- (void)setReticuleColor
+{
+//    CGFloat RGBColor = 1 - self.brightness; For inverse of brightness
+
+//    //For inverse of current color
+//    CGColorRef currentColor = [[self currentColor] CGColor];
+//    CGFloat rColor = 1 - CGColorGetComponents(currentColor)[0];
+//    CGFloat gColor = 1 - CGColorGetComponents(currentColor)[1];
+//    CGFloat bColor = 1 - CGColorGetComponents(currentColor)[2];
+
+    self.reticuleColor = [UIColor whiteColor];
 }
 
 @end

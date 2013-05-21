@@ -91,11 +91,9 @@ NSString *const KEY_END_POINT = @"End_Point";
         hasEndPoint = YES;
     }
     
-    CGPathRef aPathRef = nil;
     if (self.drawMode == drawModeLine && hasStartPoint && hasEndPoint) {
         CGContextMoveToPoint(context, startPoint.x, startPoint.y);
         CGContextAddLineToPoint(context, endPoint.x, endPoint.y);
-        aPathRef = CGContextCopyPath(context);
         CGContextStrokePath(context);
     } else if (self.drawMode == drawModeRect && hasStartPoint && hasEndPoint) {
         CGRect newRect = CGRectMake(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
@@ -122,12 +120,6 @@ NSString *const KEY_END_POINT = @"End_Point";
     CGPoint newPoint = CGPointMake(floor(point.x), ceil(point.y));
     NSValue *pointValue = [NSValue valueWithCGPoint:newPoint];
     [self.points setObject:pointValue forKey:KEY_START_POINT];
-    
-    //Get properties for this draw view from NSUD
-    self.strokeColor = [UserPrefs getColorForKey:KEY_STROKE_COLOR];
-    self.fillColor = [UserPrefs getColorForKey:KEY_FILL_COLOR];
-    self.drawMode = [UserPrefs getDrawMode];
-    self.lineSize = [UserPrefs getLineSize];
 }
 
 

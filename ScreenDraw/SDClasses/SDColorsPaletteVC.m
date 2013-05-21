@@ -15,54 +15,67 @@ NSString *const KEY_STROKE_COLOR = @"Line_Color";
 NSString *const KEY_FILL_COLOR = @"Fill_Color";
 
 @implementation SDColorsPaletteVC
+@synthesize colorPickers;
 @synthesize backgroundColorPicker, strokeColorPicker, fillColorPicker;
+
+- (id)init
+{
+    if (self = [super init]) {
+        self.backgroundColorPicker = [SDColorPickerView new];
+        self.strokeColorPicker = [SDColorPickerView new];
+        self.fillColorPicker = [SDColorPickerView new];
+    }
+    return self;
+}
+
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder]) {
+        self.backgroundColorPicker = [aDecoder decodeObject];
+        self.strokeColorPicker = [aDecoder decodeObject];
+        self.fillColorPicker = [aDecoder decodeObject];
+    }
+    return  self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeObject:self.backgroundColorPicker];
+    [aCoder encodeObject:self.strokeColorPicker];
+    [aCoder encodeObject:self.fillColorPicker];
+}
 
 - (void)loadView
 {
     [super loadView];
-
+    self.colorPickers = [NSMutableArray arrayWithCapacity:3];
+    
     CGFloat frameX = [[UIScreen mainScreen] bounds].size.width;
-    CGFloat frameWidth = 200.0f;
+    CGFloat frameWidth = 100.0f;
 
     [self.view setFrame:CGRectMake(frameX, self.view.frame.origin.y, frameWidth, self.view.frame.size.height)];
 
-    NSObject *tempObject = [UserPrefs getObjectForKey:KEY_BACKGROUND_COLOR];
-    if ([tempObject isKindOfClass:[SDColorPickerView class]]) {
-        self.backgroundColorPicker = (SDColorPickerView *)tempObject;
-    } else {
-        self.backgroundColorPicker = [SDColorPickerView new];
-    }
     [self.backgroundColorPicker.titleLabel setText:@"Background Color"];
     [self.backgroundColorPicker.mainColorWheel setContinuous:YES];
     [self.backgroundColorPicker setTag:0];
     [self.backgroundColorPicker setDelegate:self];
+    [self.colorPickers addObject:self.backgroundColorPicker];
 
-    
-    tempObject = [UserPrefs getObjectForKey:KEY_STROKE_COLOR];
-    if ([tempObject isKindOfClass:[SDColorPickerView class]]) {
-        self.strokeColorPicker = (SDColorPickerView *)tempObject;
-    } else {
-        self.strokeColorPicker = [SDColorPickerView new];
-    }
     CGRect lineColorPickerFrame = self.strokeColorPicker.frame;
     lineColorPickerFrame.origin.y = self.backgroundColorPicker.frame.origin.x + self.backgroundColorPicker.frame.size.height;
     [self.strokeColorPicker setFrame:lineColorPickerFrame];
     [self.strokeColorPicker.titleLabel setText:@"Stroke Color"];
     [self.strokeColorPicker setTag:1];
     [self.strokeColorPicker setDelegate:self];
+    [self.colorPickers addObject:self.strokeColorPicker];
     
-    tempObject = [UserPrefs getObjectForKey:KEY_FILL_COLOR];
-    if ([tempObject isKindOfClass:[SDColorPickerView class]]) {
-        self.fillColorPicker = (SDColorPickerView *)tempObject;
-    } else {
-        self.fillColorPicker = [SDColorPickerView new];
-    }
     CGRect fillColorPickerFrame = self.fillColorPicker.frame;
     fillColorPickerFrame.origin.y = lineColorPickerFrame.origin.y + lineColorPickerFrame.size.height;
     [self.fillColorPicker setFrame:fillColorPickerFrame];
     [self.fillColorPicker.titleLabel setText:@"Fill Color"];
     [self.fillColorPicker setTag:2];
     [self.fillColorPicker setDelegate:self];
+    [self.colorPickers addObject:self.fillColorPicker];
     
     [self.view addSubview:self.backgroundColorPicker];
     [self.view addSubview:self.strokeColorPicker];
@@ -72,7 +85,8 @@ NSString *const KEY_FILL_COLOR = @"Fill_Color";
 - (void)show
 {
     CGRect viewFrame = [[UIScreen mainScreen] bounds];
-    viewFrame.origin.x = floorf([[UIScreen mainScreen] bounds].size.width*0.7f);
+    viewFrame.origin.x = viewFrame.size.width - self.view.frame.size.width;
+    viewFrame.size.width = self.view.frame.size.width;
     [UIView animateWithDuration:0.2f animations:^{
         [self.view setFrame:viewFrame];
     }];
@@ -80,8 +94,9 @@ NSString *const KEY_FILL_COLOR = @"Fill_Color";
 
 - (void)hide
 {
-    CGRect viewFrame = self.view.frame;
-    viewFrame.origin.x = [[UIScreen mainScreen] bounds].size.width;
+    CGRect viewFrame = [[UIScreen mainScreen] bounds];
+    viewFrame.origin.x = viewFrame.size.width;
+    viewFrame.size.width = self.view.frame.size.width;
     [UIView animateWithDuration:0.2f animations:^{
         [self.view setFrame:viewFrame];
     }];
@@ -98,35 +113,41 @@ NSString *const KEY_FILL_COLOR = @"Fill_Color";
     } else if (pickerView == self.fillColorPicker) {
         curKey = KEY_FILL_COLOR;
     }
-    
-    [UserPrefs storeObject:pickerView forKey:curKey];
-    
-    if (self.delegate && [self.delegate respondsToSelector:@selector(colorsDidChange)]) {
-        [self.delegate colorsDidChange];
+        
+    if (self.delegate && [self.delegate respondsToSelector:@selector(changeToColor:forKey:)]) {
+        [self.delegate changeToColor:pickerView.mainColorWheel.currentColor forKey:curKey];
     }
 }
 
-- (void)SDColorPickerIsMasterPicker:(SDColorPickerView *)pickerView
+- (void)SDColorPickerDidClearColor:(SDColorPickerView *)pickerView
 {
-    CGPoint masterTouchPoint;
-    float masterDarknessValue = 0.0;
-    SDColorPickerView *slaveView;
+    NSString *curKey;
     if (pickerView == self.backgroundColorPicker) {
-        //Do nothing
+        curKey = KEY_BACKGROUND_COLOR;
     } else if (pickerView == self.strokeColorPicker) {
-        masterTouchPoint = self.strokeColorPicker.mainColorWheel.touchPoint;
-        masterDarknessValue = self.strokeColorPicker.darknessSlider.value;
-        slaveView = self.fillColorPicker;
-    } else {
-        masterTouchPoint = self.fillColorPicker.mainColorWheel.touchPoint;
-        masterDarknessValue = self.fillColorPicker.darknessSlider.value;
-        slaveView = self.strokeColorPicker;
+        curKey = KEY_STROKE_COLOR;
+    } else if (pickerView == self.fillColorPicker) {
+        curKey = KEY_FILL_COLOR;
     }
-    [slaveView.mainColorWheel setTouchPoint:masterTouchPoint];
-    [slaveView.darknessSlider setValue:masterDarknessValue];
-    [slaveView.mainColorWheel setBrightness:masterDarknessValue];
-    [slaveView.mainColorWheel updateImage];
-    [self SDColorPickerDidChangeColor:slaveView];
+    
+    if (self.delegate && [self.delegate respondsToSelector:@selector(changeToColor:forKey:)]) {
+        [self.delegate changeToColor:[UIColor clearColor] forKey:curKey];
+    }
+}
+
+- (void)SDColorPickerIsMasterPicker:(SDColorPickerView *)masterPickerView
+{
+    for (SDColorPickerView *slaveView in self.colorPickers) {
+        if (slaveView == masterPickerView) {
+            continue;
+        }
+        [slaveView.mainColorWheel setTouchPoint:masterPickerView.mainColorWheel.touchPoint];
+        [slaveView.brightnessSlider setValue:masterPickerView.brightnessSlider.value];
+        [slaveView.mainColorWheel setBrightness:masterPickerView.brightnessSlider.value];
+        [slaveView.mainColorWheel updateImage];
+        [self SDColorPickerDidChangeColor:slaveView];
+    }
+
 }
 
 @end

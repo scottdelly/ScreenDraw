@@ -9,7 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "SDDrawView.h"
 
-@interface UserPrefs : NSObject\
+@interface UserPrefs : NSObject
 
 FOUNDATION_EXPORT NSString *const KEY_BACKGROUND_COLOR;
 FOUNDATION_EXPORT NSString *const KEY_STROKE_COLOR;
@@ -25,9 +25,7 @@ FOUNDATION_EXPORT NSString *const KEY_LINE_SIZE;
 + (void)setDrawMode:(SDDrawMode)mode;
 
 + (CGFloat)getLineSize;
-+ (void)storeLineSize;
-
-+ (UIColor *)getColorForKey:(NSString *)key;
++ (void)storeLineSize:(CGFloat)size;
 
 + (void)storePoint:(CGPoint)point forKey:(NSString *)key;
 + (NSValue *)retrievePointValueForKey:(NSString *)key;

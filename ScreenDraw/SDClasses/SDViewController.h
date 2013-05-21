@@ -10,6 +10,7 @@
 #import "SDDrawView.h"
 
 FOUNDATION_EXPORT NSString *const KEY_DRAW_VIEWS;
+FOUNDATION_EXPORT NSString *const KEY_COLOR_DICT;
 
 @class SDColorsPaletteVC;
 
@@ -31,7 +32,9 @@ FOUNDATION_EXPORT NSString *const KEY_DRAW_VIEWS;
 
 @property (nonatomic, strong) UIActionSheet *toolActionSheet;
 
-@property (nonatomic, strong) SDColorsPaletteVC *mainColorPicker;
+@property (nonatomic) CGFloat lineSize;
+@property (nonatomic, strong) NSMutableDictionary *colors;
+@property (nonatomic, strong) SDColorsPaletteVC *mainColorPalette;
 @property (nonatomic) BOOL isShowingColorPicker;
 
 @end

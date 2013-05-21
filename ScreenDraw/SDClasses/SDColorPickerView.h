@@ -17,11 +17,11 @@ FOUNDATION_EXPORT NSString *const KEY_SLIDER_VALUE;
 
 @property (nonatomic, weak) id<SDColorPickerViewDelegate>delegate;
 @property (nonatomic, strong) UILabel *titleLabel;
-//@property (nonatomic, strong) UIColor *color;
 @property (nonatomic, strong) ISColorWheel *mainColorWheel;
-@property (nonatomic, strong) UISlider *darknessSlider;
+@property (nonatomic, strong) UISlider *brightnessSlider;
 @property (nonatomic, strong) UIButton *clearButton;
 @property (nonatomic, strong) UIButton *masterColorButton;
+@property (nonatomic) BOOL isClear;
 
 @end
 
