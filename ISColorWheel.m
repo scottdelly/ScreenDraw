@@ -79,7 +79,7 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
 
 @end
 
-
+NSString *const KEY_TOUCH_POINT = @"Touch_Point";
 
 @implementation ISColorWheel
 @synthesize radius = _radius;
@@ -87,6 +87,7 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
 @synthesize brightness = _brightness;
 @synthesize delegate;
 @synthesize touchPoint = _touchPoint;
+@synthesize currentColor = _currentColor;
 
 - (id)initWithFrame:(CGRect)frame
 {
@@ -99,10 +100,25 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
         
         _continuous = false;
         _radius = (MIN(self.frame.size.width, self.frame.size.height) / 2.0) - 1.0;
+        _currentColor = nil;
     }
     return self;
 }
 
+- (id)initWithCoder:(NSCoder *)aDecoder
+{
+    if (self = [super initWithCoder:aDecoder]) {
+        [self setTouchPoint:[aDecoder decodeCGPointForKey:KEY_TOUCH_POINT]];
+        [self setCurrentColor:[aDecoder decodeObject]];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)aCoder
+{
+    [aCoder encodeCGPoint:self.touchPoint forKey:KEY_TOUCH_POINT];
+    [aCoder encodeObject:self.currentColor];
+}
 
 - (PixelRGB)colorAtPoint:(CGPoint)point
 {
@@ -194,13 +210,16 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
 
 - (UIColor*)currentColor
 {
-    PixelRGB pixel = [self colorAtPoint:[self viewToImageSpace:self.touchPoint]];    
-    return [UIColor colorWithRed:pixel.r / 255.0f green:pixel.g / 255.0f blue:pixel.b / 255.0f alpha:1.0];
+    if (!_currentColor) {
+        PixelRGB pixel = [self colorAtPoint:[self viewToImageSpace:self.touchPoint]];
+        _currentColor = [UIColor colorWithRed:pixel.r / 255.0f green:pixel.g / 255.0f blue:pixel.b / 255.0f alpha:1.0];
+    }
+    return _currentColor;
 }
 
 - (void)setCurrentColor:(UIColor*)color
 {
-    
+    _currentColor = color;
 }
 
 - (void)drawRect:(CGRect)rect
@@ -240,6 +259,7 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
     
     if (_continuous)
     {
+        _currentColor = nil;
         [self.delegate colorWheelDidChangeColor:self];
     }
 }
@@ -251,12 +271,14 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
     
     if (_continuous)
     {
+        _currentColor = nil;
         [self.delegate colorWheelDidChangeColor:self];
     }
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    _currentColor = nil;
     [self.delegate colorWheelDidChangeColor:self];
 }
 
@@ -284,6 +306,7 @@ PixelRGB ISColorWheel_HSBToRGB (float h, float s, float v)
         
         _touchPoint = CGPointMake(center.x + vec.x * _radius, center.y + vec.y * _radius);
     }
+    _currentColor = nil;
 }
 
 @end

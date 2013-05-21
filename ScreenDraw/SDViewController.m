@@ -8,8 +8,9 @@
 
 #import "SDViewController.h"
 #import "UserPrefs.h"
-#import "SDColorsPicker.h"
+#import "SDColorsPaletteVC.h"
 #import "ISColorWheel.h"
+NSString *const KEY_DRAW_VIEWS = @"Draw_Views";
 
 @interface SDViewController () <SDColorsPickerDelegate>
 
@@ -28,7 +29,10 @@
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-        if (!(self.drawViews = [UserPrefs getDrawViews])) {
+        NSObject *tempObject = [UserPrefs getObjectForKey:KEY_DRAW_VIEWS];
+        if ([tempObject isKindOfClass:[NSMutableArray class]]) {
+            self.drawViews = (NSMutableArray *)tempObject;
+        } else {
             self.drawViews = [NSMutableArray arrayWithCapacity:2];
         }
         self.redoDrawViews = [NSMutableArray arrayWithCapacity:2];
@@ -46,7 +50,7 @@
     self.canvas = [[UIView alloc] initWithFrame:fullScreen];
     [self.view addSubview:self.canvas];
     self.toolActionSheet = [[UIActionSheet alloc] initWithTitle:@"Draw Mode" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Line", @"Rectangle", @"Elipse", @"Brush", nil];
-    self.mainColorPicker = [[SDColorsPicker alloc] initWithNibName:nil bundle:nil];
+    self.mainColorPicker = [[SDColorsPaletteVC alloc] initWithNibName:nil bundle:nil];
     [self.mainColorPicker setDelegate:self];
     [self addChildViewController:self.mainColorPicker];
     [self.view addSubview:self.mainColorPicker.view];
@@ -86,7 +90,8 @@
 
 - (void)updateCanvas
 {
-    [self.canvas setBackgroundColor:[UserPrefs getBackgroundColor]];
+    UIColor *newBackgroundColor = [UserPrefs getColorForKey:KEY_BACKGROUND_COLOR];
+    [self.canvas setBackgroundColor:newBackgroundColor];
 }
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
@@ -136,7 +141,7 @@
     [self updateBarButtons];
     self.currentDrawView = nil;
     
-    [UserPrefs storeDrawViews:self.drawViews];
+    [UserPrefs storeObject:self.drawViews forKey:KEY_DRAW_VIEWS];
 }
 
 - (void)updateBarButtons
@@ -234,7 +239,7 @@
         }
         [self.drawViews removeAllObjects];
         [self.redoDrawViews removeAllObjects];
-        [UserPrefs clearStoredDrawViews];
+        [UserPrefs clearDataForKey:KEY_DRAW_VIEWS];
         [self updateBarButtons];
     }
 }

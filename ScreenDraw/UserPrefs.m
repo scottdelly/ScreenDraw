@@ -7,79 +7,18 @@
 //
 
 #import "UserPrefs.h"
+#import "SDColorPickerView.h"
+#import "ISColorWheel.h"
 
-NSString *const KEY_DRAW_VIEWS = @"Draw_Views";
-NSString *const KEY_BACKGROUND_COLOR = @"Background_Color";
-NSString *const KEY_LINE_COLOR = @"Line_Color";
-NSString *const KEY_FILL_COLOR = @"Fill_Color";
 NSString *const KEY_DRAW_MODE = @"Draw_Mode";
 NSString *const KEY_LINE_SIZE = @"Line_Size";
 
 @implementation UserPrefs
 
-+ (NSMutableArray *)getDrawViews
++ (void)clearDataForKey:(NSString *)key
 {
-    NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:KEY_DRAW_VIEWS];
-    if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
-        return (NSMutableArray *)[NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
-    }
-    return nil;
-}
-
-+ (void)storeDrawViews:(NSMutableArray *)drawViews
-{
-    NSData *drawViewsData = [NSKeyedArchiver archivedDataWithRootObject:drawViews];
-    [[NSUserDefaults standardUserDefaults] setObject:drawViewsData forKey:KEY_DRAW_VIEWS];
+    [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
     [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-+ (void)clearStoredDrawViews
-{
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:KEY_DRAW_VIEWS];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-+ (UIColor *)getBackgroundColor
-{
-    UIColor *backgroundColor = [UserPrefs retrieveColorForKey:KEY_BACKGROUND_COLOR];
-    if (backgroundColor) {
-        return backgroundColor;
-    }
-    return [UIColor whiteColor];
-}
-
-+ (void)setBackgroundColor:(UIColor *)color
-{
-    [UserPrefs storeColor:color forKey:KEY_BACKGROUND_COLOR];
-}
-
-+ (UIColor *)getLineColor
-{
-    UIColor *lineColor = [UserPrefs retrieveColorForKey:KEY_LINE_COLOR];
-    if (lineColor) {
-        return lineColor;
-    }
-    return [UIColor blueColor];
-}
-
-+ (void)setLineColor:(UIColor *)color
-{
-    [UserPrefs storeColor:color forKey:KEY_LINE_COLOR];
-}
-
-+ (UIColor *)getFillColor
-{
-    UIColor *fillColor = [UserPrefs retrieveColorForKey:KEY_FILL_COLOR];
-    if (fillColor) {
-        return fillColor;
-    }
-    return [UIColor clearColor];
-}
-
-+ (void)setFillColor:(UIColor *)color
-{
-    [UserPrefs storeColor:color forKey:KEY_FILL_COLOR];
-
 }
 
 + (SDDrawMode)getDrawMode
@@ -118,18 +57,27 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
     [prefs synchronize];
 }
 
-+ (void)storeColor:(UIColor *)color forKey:(NSString *)key
++ (void)storeObject:(NSObject *)object forKey:(NSString *)key
 {
-    NSData *colorData = [NSKeyedArchiver archivedDataWithRootObject:color];
-    [[NSUserDefaults standardUserDefaults] setObject:colorData forKey:key];
+    NSData *objectData = [NSKeyedArchiver archivedDataWithRootObject:object];
+    [[NSUserDefaults standardUserDefaults] setObject:objectData forKey:key];
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-+ (UIColor *)retrieveColorForKey:(NSString *)key
++ (NSObject *)getObjectForKey:(NSString *)key
 {
     NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
     if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
-        return (UIColor *)[NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
+        return [NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
+    }
+    return nil;
+}
+
++ (UIColor *)getColorForKey:(NSString *)key
+{
+    NSObject *tempObject = [UserPrefs getObjectForKey:key];
+    if (tempObject && [tempObject isKindOfClass:[SDColorPickerView class]]) {
+        return [[(SDColorPickerView *)tempObject mainColorWheel] currentColor];
     }
     return nil;
 }

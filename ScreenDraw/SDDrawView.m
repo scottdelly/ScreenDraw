@@ -124,8 +124,8 @@ NSString *const KEY_END_POINT = @"End_Point";
     [self.points setObject:pointValue forKey:KEY_START_POINT];
     
     //Get properties for this draw view from NSUD
-    self.strokeColor = [UserPrefs getLineColor];
-    self.fillColor = [UserPrefs getFillColor];
+    self.strokeColor = [UserPrefs getColorForKey:KEY_STROKE_COLOR];
+    self.fillColor = [UserPrefs getColorForKey:KEY_FILL_COLOR];
     self.drawMode = [UserPrefs getDrawMode];
     self.lineSize = [UserPrefs getLineSize];
 }

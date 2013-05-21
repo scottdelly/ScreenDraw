@@ -10,7 +10,7 @@
 @end
 
 
-@interface ISColorWheel : UIView
+@interface ISColorWheel : UIView <NSCoding>
 {
     UIImage* _radialImage;
     float _radius;
@@ -26,6 +26,7 @@
 @property(nonatomic)float cursorRadius;
 @property(nonatomic)float brightness;
 @property(nonatomic)bool continuous;
+@property (nonatomic, strong) UIColor *currentColor;
 @property(nonatomic, weak)id <ISColorWheelDelegate> delegate;
 
 - (void)updateImage;

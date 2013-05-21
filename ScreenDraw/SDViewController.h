@@ -8,7 +8,10 @@
 
 #import <UIKit/UIKit.h>
 #import "SDDrawView.h"
-@class SDColorsPicker;
+
+FOUNDATION_EXPORT NSString *const KEY_DRAW_VIEWS;
+
+@class SDColorsPaletteVC;
 
 @interface SDViewController : UIViewController <UIAlertViewDelegate, UIActionSheetDelegate>
 
@@ -28,7 +31,7 @@
 
 @property (nonatomic, strong) UIActionSheet *toolActionSheet;
 
-@property (nonatomic, strong) SDColorsPicker *mainColorPicker;
+@property (nonatomic, strong) SDColorsPaletteVC *mainColorPicker;
 @property (nonatomic) BOOL isShowingColorPicker;
 
 @end
