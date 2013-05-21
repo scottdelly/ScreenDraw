@@ -28,7 +28,7 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 
 - (id)init
 {
-    CGRect frame = CGRectMake(0, 0, 100, 170);
+    CGRect frame = CGRectMake(0, 0, 120, 139);
     if (self = [super initWithFrame:frame]) {
         CGFloat currentDrawHeight = 0;
         CGRect labelFrame = CGRectMake(0, 0, frame.size.width, 16);
@@ -38,25 +38,29 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         [self.titleLabel setTextAlignment:NSTextAlignmentCenter];
         
         currentDrawHeight += labelFrame.size.height;
-        self.mainColorWheel = [[ISColorWheel alloc] initWithFrame:CGRectMake(0, currentDrawHeight, frame.size.width, frame.size.width)];
+        self.mainColorWheel = [[ISColorWheel alloc] initWithFrame:CGRectMake(2, currentDrawHeight, 100, 100)];
         [self setupColorWheel];
         
         currentDrawHeight += self.mainColorWheel.frame.size.height;
-        self.brightnessSlider = [[UISlider alloc] initWithFrame:CGRectMake(0, currentDrawHeight, frame.size.width, 16)];
+        self.brightnessSlider = [[UISlider alloc] initWithFrame:CGRectMake(60, 50, 100, 16)];
         [self.brightnessSlider addTarget:self action:@selector(brightnessSliderDidChange) forControlEvents:UIControlEventAllEvents];
         [self.brightnessSlider setContinuous:YES];
         [self.brightnessSlider setValue:1];
         
-        currentDrawHeight += self.brightnessSlider.frame.size.height + 5.0f;
+        CGAffineTransform trans = CGAffineTransformMakeRotation(M_PI * 1.5);
+        self.brightnessSlider.transform = trans;
+
+        
+//        currentDrawHeight += self.brightnessSlider.frame.size.height + 5.0f;
         self.clearButton = [[UIButton alloc] initWithFrame:CGRectMake(0, currentDrawHeight, frame.size.width/2, 22)];
         [self.clearButton setTitle:@"X" forState:UIControlStateNormal];
         [self.clearButton addTarget:self action:@selector(clearButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.clearButton setBackgroundColor:[UIColor grayColor]];
+        [self.clearButton setBackgroundColor:[UIColor darkGrayColor]];
         
         self.masterColorButton = [[UIButton alloc] initWithFrame:CGRectMake(self.clearButton.frame.size.width, currentDrawHeight, frame.size.width/2, 22)];
         [self.masterColorButton setTitle:@"=" forState:UIControlStateNormal];
         [self.masterColorButton addTarget:self action:@selector(masterButtonPressed) forControlEvents:UIControlEventTouchUpInside];
-        [self.masterColorButton setBackgroundColor:[UIColor grayColor]];
+        [self.masterColorButton setBackgroundColor:[UIColor darkGrayColor]];
         
         [self addSubview:self.titleLabel];
         [self addSubview:self.brightnessSlider];

@@ -48,10 +48,13 @@ NSString *const KEY_FILL_COLOR = @"Fill_Color";
 - (void)loadView
 {
     [super loadView];
+    
+    [self.view setBackgroundColor:[UIColor grayColor]];
+    
     self.colorPickers = [NSMutableArray arrayWithCapacity:3];
     
     CGFloat frameX = [[UIScreen mainScreen] bounds].size.width;
-    CGFloat frameWidth = 100.0f;
+    CGFloat frameWidth = 120.0f;
 
     [self.view setFrame:CGRectMake(frameX, self.view.frame.origin.y, frameWidth, self.view.frame.size.height)];
 

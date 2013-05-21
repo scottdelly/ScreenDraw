@@ -260,8 +260,9 @@ NSString *const KEY_TOUCH_POINT = @"Touch_Point";
             CGContextAddEllipseInRect(ctx, CGRectMake(self.touchPoint.x - self.cursorRadius, self.touchPoint.y - self.cursorRadius, self.cursorRadius * 2.0, self.cursorRadius * 2.0));
         CGContextStrokePath(ctx);
     }
-    CGSize shadowSize = CGSizeMake(0, 0);
-    CGContextSetShadowWithColor(ctx, shadowSize, 3, [[UIColor grayColor] CGColor]);
+    CGContextSetLineWidth(ctx, 1.0);
+    CGSize shadowOffset = CGSizeMake(0, 0);
+    CGContextSetShadowWithColor(ctx, shadowOffset, 3, [[UIColor grayColor] CGColor]);
 
     CGContextSetStrokeColorWithColor(ctx, [[UIColor grayColor] CGColor]);
     CGContextAddEllipseInRect(ctx, CGRectMake(center.x - self.radius, center.y - self.radius, self.radius * 2.0, self.radius * 2.0)); ///This draws a circle around the color picker
