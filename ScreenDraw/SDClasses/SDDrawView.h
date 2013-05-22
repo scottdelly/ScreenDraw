@@ -22,7 +22,9 @@ typedef enum SDDrawMode{
 @interface SDDrawView : UIView <NSCoding>
 
 @property (nonatomic, strong) NSString *title;
-@property (nonatomic, strong) NSMutableDictionary *points;
+@property (nonatomic, strong) NSMutableDictionary *pointsDict;
+@property (nonatomic, strong) NSMutableArray *pointsArray;
+
 
 //Properties from NSUD
 @property (nonatomic) SDDrawMode drawMode;

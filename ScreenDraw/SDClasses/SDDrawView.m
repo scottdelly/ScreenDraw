@@ -22,7 +22,7 @@ NSString *const KEY_END_POINT = @"End_Point";
 
 @synthesize title;
 @synthesize lineSize;
-@synthesize points;
+@synthesize pointsDict;
 @synthesize strokeColor, fillColor;
 
 + (int)getViewNumber
@@ -34,7 +34,8 @@ NSString *const KEY_END_POINT = @"End_Point";
     if (self = [super initWithFrame:frame]) {
         self.title = [NSString stringWithFormat:@"%i", [SDDrawView getViewNumber]];
         NSLog(@"New view with title: %@", self.title);
-        self.points = [NSMutableDictionary dictionaryWithCapacity:2];
+        self.pointsDict = [NSMutableDictionary dictionaryWithCapacity:2];
+        self.pointsArray = [NSMutableArray arrayWithCapacity:2];
     }
     return self;
 }
@@ -43,7 +44,8 @@ NSString *const KEY_END_POINT = @"End_Point";
 {
     if (self = [super initWithCoder:aDecoder]) {
         [self setTitle:[aDecoder decodeObject]];
-        [self setPoints:[aDecoder decodeObject]];
+        [self setPointsDict:[aDecoder decodeObject]];
+        [self setPointsArray:[aDecoder decodeObject]];
         [self setDrawMode:[aDecoder decodeIntegerForKey:KEY_DRAW_MODE]];
         [self setLineSize:[aDecoder decodeIntegerForKey:KEY_LINE_SIZE]];
         [self setStrokeColor:[aDecoder decodeObject]];
@@ -56,7 +58,8 @@ NSString *const KEY_END_POINT = @"End_Point";
 {
     [super encodeWithCoder:aCoder];
     [aCoder encodeObject:self.title];
-    [aCoder encodeObject:self.points];
+    [aCoder encodeObject:self.pointsDict];
+    [aCoder encodeObject:self.pointsArray];
     [aCoder encodeInteger:self.drawMode forKey:KEY_DRAW_MODE];
     [aCoder encodeInteger:self.lineSize forKey:KEY_LINE_SIZE];
     [aCoder encodeObject:self.strokeColor];
@@ -69,25 +72,26 @@ NSString *const KEY_END_POINT = @"End_Point";
     CGContextClearRect(context, rect);
     CGContextSetLineWidth(context, self.lineSize);
     
-    if (self.drawMode == drawModeLine) {
+    if (self.drawMode == drawModeLine || self.drawMode == drawModeFree) {
+        CGContextSetFillColorWithColor(context, [self.fillColor CGColor]);
         CGContextSetStrokeColorWithColor(context, [self.fillColor CGColor]);
     } else {
         CGContextSetFillColorWithColor(context, [self.fillColor CGColor]);
         CGContextSetStrokeColorWithColor(context, [self.strokeColor CGColor]);
     }
     
-    NSInteger pointCount = [self.points count];
+    NSInteger pointCount = [self.pointsDict count];
     
     CGPoint startPoint;
     CGPoint endPoint;
     BOOL hasStartPoint = NO;
     BOOL hasEndPoint = NO;
-    if (pointCount > 1 && [self.points objectForKey:KEY_START_POINT]) {
-        startPoint = [[self.points objectForKey:KEY_START_POINT] CGPointValue];
+    if (pointCount > 1 && [self.pointsDict objectForKey:KEY_START_POINT]) {
+        startPoint = [[self.pointsDict objectForKey:KEY_START_POINT] CGPointValue];
         hasStartPoint = YES;
     }
-    if (pointCount > 1 && [self.points objectForKey:KEY_END_POINT] ) {
-        endPoint = [[self.points objectForKey:KEY_END_POINT] CGPointValue];
+    if (pointCount > 1 && [self.pointsDict objectForKey:KEY_END_POINT] ) {
+        endPoint = [[self.pointsDict objectForKey:KEY_END_POINT] CGPointValue];
         hasEndPoint = YES;
     }
     
@@ -104,14 +108,25 @@ NSString *const KEY_END_POINT = @"End_Point";
         CGContextStrokeEllipseInRect(context, newRect);
         CGContextFillEllipseInRect(context, newRect);
     } else if (self.drawMode == drawModeFree && pointCount > 0){
-        CGRect pointRect = CGRectMake(0, 0, 8, 8);
-        for (NSString *key in self.points) {
-            CGPoint point = [[self.points objectForKey:key] CGPointValue];
+        CGRect pointRect = CGRectMake(0, 0, self.lineSize, self.lineSize);
+
+        for (int i = 0; i < [self.pointsArray count]; i++) {
+            CGPoint point = [[self.pointsArray objectAtIndex:i] CGPointValue];
+
             pointRect.origin.x = point.x - pointRect.size.width/2;
             pointRect.origin.y = point.y - pointRect.size.height/2;
-            CGContextAddEllipseInRect(context, pointRect);
             CGContextFillEllipseInRect(context, pointRect);
-        }
+            if (i > 0 && i < [self.pointsArray count]-1) {
+                CGPoint previousPoint = [[self.pointsArray objectAtIndex:i-1] CGPointValue];
+                CGPoint nextPoint = [[self.pointsArray objectAtIndex:i+1] CGPointValue];
+                CGContextMoveToPoint(context, previousPoint.x, previousPoint.y);
+                
+                CGContextAddQuadCurveToPoint(context, point.x, point.y, nextPoint.x, nextPoint.y);
+                CGContextStrokePath(context);
+                
+ 
+            }
+        }  
     }
 }
 
@@ -119,7 +134,7 @@ NSString *const KEY_END_POINT = @"End_Point";
 {
     CGPoint newPoint = CGPointMake(floor(point.x), ceil(point.y));
     NSValue *pointValue = [NSValue valueWithCGPoint:newPoint];
-    [self.points setObject:pointValue forKey:KEY_START_POINT];
+    [self.pointsDict setObject:pointValue forKey:KEY_START_POINT];
 }
 
 
@@ -127,23 +142,24 @@ NSString *const KEY_END_POINT = @"End_Point";
 {
     CGPoint newPoint = CGPointMake(floor(point.x), ceil(point.y));
     NSValue *pointValue = [NSValue valueWithCGPoint:newPoint];
-    [self.points setObject:pointValue forKey:KEY_END_POINT];
+    [self.pointsDict setObject:pointValue forKey:KEY_END_POINT];
     [self setNeedsDisplay];
 }
 
 
 - (void)addPoint:(CGPoint)point
 {
-    if ([self.points count] == 0) {
+    CGPoint newPoint = CGPointMake(floor(point.x), ceil(point.y));
+    NSValue *pointValue = [NSValue valueWithCGPoint:newPoint];
+    if ([self.pointsDict count] == 0) {
         [self setStartPoint:point];
     } else if (self.drawMode != drawModeFree) {
         [self setEndPoint:point];
     } else {
-        CGPoint newPoint = CGPointMake(floor(point.x), ceil(point.y));
-        NSValue *pointValue = [NSValue valueWithCGPoint:newPoint];
-        [self.points setObject:pointValue forKey:pointValue];
+        [self.pointsDict setObject:pointValue forKey:pointValue];
         [self setNeedsDisplay];
     }
+    [self.pointsArray addObject:pointValue];
 }
 
 

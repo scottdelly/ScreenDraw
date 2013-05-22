@@ -19,10 +19,12 @@
 {
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
-    self.window.backgroundColor = [UIColor whiteColor];
-    SDViewController *rootViewController = [[SDViewController alloc] initWithNibName:nil bundle:nil];
+    self.window.backgroundColor = [UIColor clearColor];
+    self.window.windowLevel = UIWindowLevelStatusBar+1.f;    SDViewController *rootViewController = [[SDViewController alloc] initWithNibName:nil bundle:nil];
 
     UINavigationController *rootNavigationController = [[UINavigationController alloc] initWithRootViewController:rootViewController];
+    [[rootNavigationController navigationBar] setBarStyle:UIBarStyleBlackTranslucent];
+    [[rootNavigationController navigationBar] setAutoresizesSubviews:NO];
     [self.window setRootViewController:rootNavigationController];
     [self.window makeKeyAndVisible];
     return YES;

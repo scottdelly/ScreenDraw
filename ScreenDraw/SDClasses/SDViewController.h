@@ -22,6 +22,7 @@ FOUNDATION_EXPORT NSString *const KEY_COLOR_DICT;
 @property (nonatomic, strong) SDDrawView *currentDrawView;
 @property (nonatomic) SDDrawMode currentDrawMode;
 
+@property (nonatomic, strong) UIBarButtonItem *shareButton;
 @property (nonatomic, strong) UIBarButtonItem *toolButton;
 @property (nonatomic, strong) UIBarButtonItem *colorButton;
 @property (nonatomic, strong) UIBarButtonItem *undoBarButton;

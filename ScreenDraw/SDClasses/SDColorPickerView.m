@@ -50,8 +50,6 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         CGAffineTransform trans = CGAffineTransformMakeRotation(M_PI * 1.5);
         self.brightnessSlider.transform = trans;
 
-        
-//        currentDrawHeight += self.brightnessSlider.frame.size.height + 5.0f;
         self.clearButton = [[UIButton alloc] initWithFrame:CGRectMake(0, currentDrawHeight, frame.size.width/2, 22)];
         [self.clearButton setTitle:@"X" forState:UIControlStateNormal];
         [self.clearButton addTarget:self action:@selector(clearButtonPressed) forControlEvents:UIControlEventTouchUpInside];

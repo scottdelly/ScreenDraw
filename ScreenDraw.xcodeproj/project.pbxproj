@@ -30,6 +30,7 @@
 		D2978484174C0FC300169BF3 /* SDMenuViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D297847E174C0FC300169BF3 /* SDMenuViewController.m */; };
 		D2978485174C0FC300169BF3 /* SDViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = D2978480174C0FC300169BF3 /* SDViewController.m */; };
 		D297848B174C10E700169BF3 /* ISColorWheel.m in Sources */ = {isa = PBXBuildFile; fileRef = D297848A174C10E700169BF3 /* ISColorWheel.m */; };
+		D297848E174CB03700169BF3 /* UIView+ScreenDraw.m in Sources */ = {isa = PBXBuildFile; fileRef = D297848D174CB03700169BF3 /* UIView+ScreenDraw.m */; };
 		D2C18A711746B9E700513097 /* UserPrefs.m in Sources */ = {isa = PBXBuildFile; fileRef = D2C18A701746B9E700513097 /* UserPrefs.m */; };
 /* End PBXBuildFile section */
 
@@ -78,6 +79,8 @@
 		D2978480174C0FC300169BF3 /* SDViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDViewController.m; sourceTree = "<group>"; };
 		D2978489174C10E700169BF3 /* ISColorWheel.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ISColorWheel.h; path = ScreenDraw/ISColorWheel.h; sourceTree = "<group>"; };
 		D297848A174C10E700169BF3 /* ISColorWheel.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = ISColorWheel.m; path = ScreenDraw/ISColorWheel.m; sourceTree = "<group>"; };
+		D297848C174CB03700169BF3 /* UIView+ScreenDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIView+ScreenDraw.h"; sourceTree = "<group>"; };
+		D297848D174CB03700169BF3 /* UIView+ScreenDraw.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIView+ScreenDraw.m"; sourceTree = "<group>"; };
 		D2C18A6F1746B9E700513097 /* UserPrefs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = UserPrefs.h; sourceTree = "<group>"; };
 		D2C18A701746B9E700513097 /* UserPrefs.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = UserPrefs.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -151,6 +154,8 @@
 				D2512C771746A4240038A511 /* Supporting Files */,
 				D2C18A6F1746B9E700513097 /* UserPrefs.h */,
 				D2C18A701746B9E700513097 /* UserPrefs.m */,
+				D297848C174CB03700169BF3 /* UIView+ScreenDraw.h */,
+				D297848D174CB03700169BF3 /* UIView+ScreenDraw.m */,
 			);
 			path = ScreenDraw;
 			sourceTree = "<group>";
@@ -326,6 +331,7 @@
 				D2978484174C0FC300169BF3 /* SDMenuViewController.m in Sources */,
 				D2978485174C0FC300169BF3 /* SDViewController.m in Sources */,
 				D297848B174C10E700169BF3 /* ISColorWheel.m in Sources */,
+				D297848E174CB03700169BF3 /* UIView+ScreenDraw.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
