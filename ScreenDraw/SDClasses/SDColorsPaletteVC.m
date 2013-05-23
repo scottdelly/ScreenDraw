@@ -69,7 +69,7 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
     [self.colorPickers addObject:self.backgroundColorPicker];
 
     CGRect fillColorPickerFrame = self.fillColorPicker.frame;
-    fillColorPickerFrame.origin.y = self.backgroundColorPicker.frame.origin.x + self.backgroundColorPicker.frame.size.height;
+    fillColorPickerFrame.origin.y = self.backgroundColorPicker.frame.origin.y + self.backgroundColorPicker.frame.size.height;
     [self.fillColorPicker setFrame:fillColorPickerFrame];
     [self.fillColorPicker.titleLabel setText:@"Fill Color"];
     [self.fillColorPicker setTag:2];

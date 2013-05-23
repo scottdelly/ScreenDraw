@@ -62,7 +62,7 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
     if (tempObject && [tempObject isKindOfClass:[NSNumber class]]) {
         return (CGFloat)[(NSNumber *)tempObject floatValue];
     } else {
-        return 2.0f;
+        return 10.0f;
     }
 }
 
