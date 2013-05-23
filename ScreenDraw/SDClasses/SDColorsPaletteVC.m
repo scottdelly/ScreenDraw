@@ -72,7 +72,7 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
     fillColorPickerFrame.origin.y = self.backgroundColorPicker.frame.origin.y + self.backgroundColorPicker.frame.size.height;
     [self.fillColorPicker setFrame:fillColorPickerFrame];
     [self.fillColorPicker.titleLabel setText:@"Fill Color"];
-    [self.fillColorPicker setTag:2];
+    [self.fillColorPicker setTag:1];
     [self.fillColorPicker setDelegate:self];
     [self.colorPickers addObject:self.fillColorPicker];
     
@@ -80,7 +80,7 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
     strokeColorPickerFrame.origin.y = fillColorPickerFrame.origin.y + fillColorPickerFrame.size.height;
     [self.strokeColorPicker setFrame:strokeColorPickerFrame];
     [self.strokeColorPicker.titleLabel setText:@"Stroke Color"];
-    [self.strokeColorPicker setTag:1];
+    [self.strokeColorPicker setTag:2];
     [self.strokeColorPicker setDelegate:self];
     [self.colorPickers addObject:self.strokeColorPicker];
     
@@ -116,11 +116,11 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
     if (pickerView == self.backgroundColorPicker) {
         curKey = KEY_BACKGROUND_COLOR;
     } else if (pickerView == self.fillColorPicker) {
-        curKey = KEY_STROKE_COLOR;
-    } else if (pickerView == self.strokeColorPicker) {
         curKey = KEY_FILL_COLOR;
+    } else if (pickerView == self.strokeColorPicker) {
+        curKey = KEY_STROKE_COLOR;
     }
-        
+    
     if (self.delegate && [self.delegate respondsToSelector:@selector(changeToColor:forKey:)]) {
         [self.delegate changeToColor:pickerView.mainColorWheel.currentColor forKey:curKey];
     }
@@ -132,9 +132,9 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
     if (pickerView == self.backgroundColorPicker) {
         curKey = KEY_BACKGROUND_COLOR;
     } else if (pickerView == self.fillColorPicker) {
-        curKey = KEY_STROKE_COLOR;
-    } else if (pickerView == self.strokeColorPicker) {
         curKey = KEY_FILL_COLOR;
+    } else if (pickerView == self.strokeColorPicker) {
+        curKey = KEY_STROKE_COLOR;
     }
     
     if (self.delegate && [self.delegate respondsToSelector:@selector(changeToColor:forKey:)]) {
