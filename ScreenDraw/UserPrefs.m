@@ -44,7 +44,7 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
     if (tempObject && [tempObject isKindOfClass:[NSNumber class]]) {
         return (SDDrawMode)[(NSNumber *)tempObject intValue];
     } else {
-        return drawModeLine;
+        return drawModeFree;
     }
 }
 
@@ -81,7 +81,7 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
     [[NSUserDefaults standardUserDefaults] synchronize];
 }
 
-+ (NSValue *)retrievePointValueForKey:(NSString *)key
++ (NSValue *)getPointValueForKey:(NSString *)key
 {
     NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
     if (tempObject && [tempObject isKindOfClass:[NSData class]]) {

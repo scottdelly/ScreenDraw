@@ -183,11 +183,11 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     UITouch *touch = [touches anyObject];
     CGPoint point = [touch locationInView:self.currentDrawView];
     [self.currentDrawView setEndPoint:point];
-    UIImage *drawnImage = [UIView imageFromView:self.currentDrawView];
-    UIImageView *drawnImageView = [[UIImageView alloc] initWithImage:drawnImage];
-    [self.drawViews addObject:drawnImageView];
-    [self.view addSubview:drawnImageView];
-    [self.currentDrawView removeFromSuperview];
+//    UIImage *drawnImage = [UIView imageFromView:self.currentDrawView];
+//    UIImageView *drawnImageView = [[UIImageView alloc] initWithImage:drawnImage];
+    [self.drawViews addObject:self.currentDrawView];
+//    [self.view addSubview:drawnImageView];
+//    [self.currentDrawView removeFromSuperview];
     [self updateBarButtons];
     self.currentDrawView = nil;
     
@@ -201,7 +201,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     
     [self.undoBarButton setEnabled:hasViews];
     [self.redoBarButton setEnabled:hasRedoViews];
-    [self.clearBarButton setEnabled:hasViews];
+    [self.clearBarButton setEnabled:(hasViews || hasRedoViews)];
 }
 
 - (void)shareButtonPressed
@@ -241,7 +241,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     NSInteger drawViewsCount = [self.drawViews count];
     if (drawViewsCount > 0) {
         NSObject *tempObject = [self.drawViews objectAtIndex:drawViewsCount-1];
-        if (tempObject && [tempObject isKindOfClass:[UIImageView class]]) {
+        if (tempObject && [tempObject isKindOfClass:[UIView class]]) {
             UIImageView *drawView = (UIImageView *)tempObject;
             [self.redoDrawViews addObject:drawView];
             [self.drawViews removeObject:drawView];
@@ -258,7 +258,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     NSInteger redoDrawViewsCount = [self.redoDrawViews count];
     if (redoDrawViewsCount > 0) {
         NSObject *tempObject = [self.redoDrawViews objectAtIndex:redoDrawViewsCount-1];
-        if (tempObject && [tempObject isKindOfClass:[UIImageView class]]) {
+        if (tempObject && [tempObject isKindOfClass:[UIView class]]) {
             UIImageView *drawView = (UIImageView *)tempObject;
             [self.drawViews addObject:drawView];
             [self.redoDrawViews removeObject:drawView];
@@ -298,7 +298,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     } else {
         NSLog(@"User sleceted clear button");
         for (NSObject *tempObject in self.drawViews) {
-            if (tempObject && [tempObject isKindOfClass:[UIImageView class]]) {
+            if (tempObject && [tempObject isKindOfClass:[UIView class]]) {
                 UIImageView *drawView = (UIImageView *)tempObject;
                 [drawView removeFromSuperview];
             }

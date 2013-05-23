@@ -27,7 +27,7 @@ FOUNDATION_EXPORT NSString *const KEY_LINE_SIZE;
 + (CGFloat)getLineSize;
 + (void)storeLineSize:(CGFloat)size;
 
-+ (void)storePoint:(CGPoint)point forKey:(NSString *)key;
-+ (NSValue *)retrievePointValueForKey:(NSString *)key;
+//+ (void)storePoint:(CGPoint)point forKey:(NSString *)key;
+//+ (NSValue *)getPointValueForKey:(NSString *)key;
 
 @end
