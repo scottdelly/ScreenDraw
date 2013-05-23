@@ -129,6 +129,9 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if ([touches count] > 1) {
+        return [super touchesBegan:touches withEvent:event];
+    }
     if (self.isShowingColorPicker) {
         if ([event touchesForView:self.mainColorPalette.view]) {
             return [super touchesBegan:touches withEvent:event];
@@ -156,6 +159,9 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if ([touches count] > 1) {
+        return [super touchesBegan:touches withEvent:event];
+    }
     if (self.isShowingColorPicker) {
         return [super touchesBegan:touches withEvent:event];
     }
@@ -167,6 +173,9 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
+    if ([touches count] > 1) {
+        return [super touchesBegan:touches withEvent:event];
+    }
     if (self.isShowingColorPicker) {
         return [super touchesBegan:touches withEvent:event];
     }
