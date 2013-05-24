@@ -21,7 +21,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
 @implementation SDViewController
 @synthesize canvas;
-@synthesize drawViews;
+//@synthesize drawViews;
 @synthesize redoDrawViews;
 @synthesize shareButton, toolButton, colorButton;
 @synthesize undoBarButton, redoBarButton, clearBarButton;
@@ -35,12 +35,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
             
-        NSObject *tempObject = [UserPrefs getObjectForKey:KEY_DRAW_VIEWS];
-        if (tempObject && [tempObject isKindOfClass:[NSMutableArray class]]) {
-            self.drawViews = (NSMutableArray *)tempObject;
-        } else {
-            self.drawViews = [NSMutableArray arrayWithCapacity:2];
-        }
+
         self.redoDrawViews = [NSMutableArray arrayWithCapacity:2];
         self.isShowingColorPicker = NO;
         self.currentDrawMode = [UserPrefs getDrawMode];
@@ -55,7 +50,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
         
         self.lineSize = [UserPrefs getLineSize];
         
-        tempObject = [UserPrefs getObjectForKey:KEY_COLOR_DICT];
+        NSObject *tempObject = [UserPrefs getObjectForKey:KEY_COLOR_DICT];
         if (tempObject && [tempObject isKindOfClass:[NSMutableDictionary class]]) {
             self.colors = (NSMutableDictionary *)tempObject;
         } else {
@@ -78,9 +73,20 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     }
     
     self.canvas = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    
+    NSObject *tempObject = [UserPrefs getObjectForKey:KEY_DRAW_VIEWS];
+    if (tempObject && [tempObject isKindOfClass:[NSArray class]]) {
+        NSArray *tempArray = (NSArray *)tempObject;
+        for (NSObject *tempArrayObject in tempArray) {
+            if ([tempArrayObject isKindOfClass:[UIView class]]) {
+                [self.canvas addSubview:(UIView *)tempArrayObject];
+            }
+        }
+    }
+    
     [self.view addSubview:self.canvas];
     self.toolActionSheet = [[UIActionSheet alloc] initWithTitle:@"Draw Mode" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Line", @"Rectangle", @"Elipse", @"Brush", nil];
-    NSObject *tempObject = [UserPrefs getObjectForKey:KEY_COLORPICKER];
+    tempObject = [UserPrefs getObjectForKey:KEY_COLORPICKER];
     if (tempObject && [tempObject isKindOfClass:[SDColorsPaletteVC class]]) {
         self.mainColorPalette = (SDColorsPaletteVC *)tempObject;
     } else {
@@ -88,7 +94,6 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     }
     [self.mainColorPalette setDelegate:self];
     [self addChildViewController:self.mainColorPalette];
-    [self.view addSubview:self.mainColorPalette.view];
     self.OBLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, self.view.frame.size.width, 30)];
 }
 
@@ -96,12 +101,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 {
     [super viewWillAppear:animated];
     [self updateCanvas];
-    if ([self.drawViews count] > 0) {
-        for (SDDrawView *drawView in self.drawViews) {
-            [self.view addSubview:drawView];
-            [self.view bringSubviewToFront:drawView];
-        }
-    } else {
+    if ([self.canvas.subviews count] < 1) {
         [self.OBLabel setText:@"Touch the screen to draw"];
         [self.OBLabel setTextAlignment:NSTextAlignmentCenter];
         [self.OBLabel setTextColor:[UIColor grayColor]];
@@ -113,7 +113,6 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
         [self updateBarButtons];
     }
     [self.mainColorPalette hide];
-    
     
     UIView* statusBarInterceptView = [[UIView alloc] initWithFrame:[UIApplication sharedApplication].statusBarFrame];
     statusBarInterceptView.backgroundColor = [UIColor clearColor];
@@ -129,7 +128,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if ([touches count] > 1) {
+    if ([[event allTouches] count] > 1) {
         return [super touchesBegan:touches withEvent:event];
     }
     if (self.isShowingColorPicker) {
@@ -140,7 +139,6 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
         }
     }
     NSLog(@"Touches began");
-    //Create a new SDDrawView
     if (self.OBLabel.superview) {
         [self.OBLabel removeFromSuperview];
     }
@@ -150,7 +148,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     [self.currentDrawView setFillColor:[self.colors objectForKey:KEY_FILL_COLOR]];
     [self.currentDrawView setStrokeColor:[self.colors objectForKey:KEY_STROKE_COLOR]];
     [self.currentDrawView setLineSize:self.lineSize];
-    [self.view addSubview:self.currentDrawView];
+    [self.canvas addSubview:self.currentDrawView];
 
     UITouch *touch = [touches anyObject];
     CGPoint point = [touch locationInView:self.currentDrawView];
@@ -159,13 +157,12 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if ([touches count] > 1) {
+    if ([[event allTouches] count] > 1) {
         return [super touchesBegan:touches withEvent:event];
     }
     if (self.isShowingColorPicker) {
         return [super touchesBegan:touches withEvent:event];
     }
-    //Update current SDDrawView
     UITouch *touch = [touches anyObject];
     CGPoint point = [touch locationInView:self.currentDrawView];
     [self.currentDrawView addPoint:point];
@@ -173,7 +170,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    if ([touches count] > 1) {
+    if ([[event allTouches] count] > 1) {
         return [super touchesBegan:touches withEvent:event];
     }
     if (self.isShowingColorPicker) {
@@ -183,31 +180,26 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     UITouch *touch = [touches anyObject];
     CGPoint point = [touch locationInView:self.currentDrawView];
     [self.currentDrawView setEndPoint:point];
-//    UIImage *drawnImage = [UIView imageFromView:self.currentDrawView];
-//    UIImageView *drawnImageView = [[UIImageView alloc] initWithImage:drawnImage];
-    [self.drawViews addObject:self.currentDrawView];
-//    [self.view addSubview:drawnImageView];
-//    [self.currentDrawView removeFromSuperview];
     [self updateBarButtons];
-    self.currentDrawView = nil;
     
-    [UserPrefs storeObject:self.drawViews forKey:KEY_DRAW_VIEWS];
+    [UserPrefs storeObject:self.canvas.subviews forKey:KEY_DRAW_VIEWS];
 }
 
 - (void)updateBarButtons
 {
-    BOOL hasViews = ([self.drawViews count] > 0);
+    BOOL hasSubviews = ([self.canvas.subviews count] > 0);
+//    BOOL hasViews = ([self.drawViews count] > 0);
     BOOL hasRedoViews = ([self.redoDrawViews count] > 0);
     
-    [self.undoBarButton setEnabled:hasViews];
+    [self.undoBarButton setEnabled:hasSubviews];
     [self.redoBarButton setEnabled:hasRedoViews];
-    [self.clearBarButton setEnabled:(hasViews || hasRedoViews)];
+    [self.clearBarButton setEnabled:(hasSubviews || hasRedoViews)];
 }
 
 - (void)shareButtonPressed
 {
     NSLog(@"Share Button pressed");
-    UIImage *flattenedImage = [UIView imageFromView:self.view];
+    UIImage *flattenedImage = [UIView imageFromView:self.canvas];
     UIImageWriteToSavedPhotosAlbum(flattenedImage, nil, nil, nil);
 }
 
@@ -228,7 +220,9 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     if (self.isShowingColorPicker) {
         [self.mainColorPalette hide];
         [self setIsShowingColorPicker:NO];
+        [self.mainColorPalette.view removeFromSuperview];
     } else {
+        [self.view addSubview:self.mainColorPalette.view];
         [self.view bringSubviewToFront:self.mainColorPalette.view];
         [self.mainColorPalette show];
         [self setIsShowingColorPicker:YES];
@@ -238,13 +232,12 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 - (void)undoButtonPressed
 {
     NSLog(@"Undo Button Pressed");
-    NSInteger drawViewsCount = [self.drawViews count];
+    NSInteger drawViewsCount = [self.canvas.subviews count];
     if (drawViewsCount > 0) {
-        NSObject *tempObject = [self.drawViews objectAtIndex:drawViewsCount-1];
+        NSObject *tempObject = [self.canvas.subviews objectAtIndex:drawViewsCount-1];
         if (tempObject && [tempObject isKindOfClass:[UIView class]]) {
-            UIImageView *drawView = (UIImageView *)tempObject;
+            UIView *drawView = (UIView *)tempObject;
             [self.redoDrawViews addObject:drawView];
-            [self.drawViews removeObject:drawView];
             [drawView removeFromSuperview];
             [self.view setNeedsDisplay];
         }
@@ -259,10 +252,9 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     if (redoDrawViewsCount > 0) {
         NSObject *tempObject = [self.redoDrawViews objectAtIndex:redoDrawViewsCount-1];
         if (tempObject && [tempObject isKindOfClass:[UIView class]]) {
-            UIImageView *drawView = (UIImageView *)tempObject;
-            [self.drawViews addObject:drawView];
+            UIView *drawView = (UIView *)tempObject;
+            [self.canvas addSubview:drawView];
             [self.redoDrawViews removeObject:drawView];
-            [self.view addSubview:drawView];
             [self.view setNeedsDisplay];
         }
     }
@@ -297,13 +289,12 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
         NSLog(@"User cancelled clear");
     } else {
         NSLog(@"User sleceted clear button");
-        for (NSObject *tempObject in self.drawViews) {
+        for (NSObject *tempObject in self.canvas.subviews) {
             if (tempObject && [tempObject isKindOfClass:[UIView class]]) {
-                UIImageView *drawView = (UIImageView *)tempObject;
+                UIView *drawView = (UIView *)tempObject;
                 [drawView removeFromSuperview];
             }
         }
-        [self.drawViews removeAllObjects];
         [self.redoDrawViews removeAllObjects];
         [self.view setNeedsDisplay];
         [UserPrefs clearDataForKey:KEY_DRAW_VIEWS];

@@ -17,7 +17,7 @@ FOUNDATION_EXPORT NSString *const KEY_COLOR_DICT;
 @interface SDViewController : UIViewController <UIAlertViewDelegate, UIActionSheetDelegate>
 
 @property (nonatomic, strong) UIView *canvas;
-@property (nonatomic, strong) NSMutableArray *drawViews;
+//@property (nonatomic, strong) NSMutableArray *drawViews;
 @property (nonatomic, strong) NSMutableArray *redoDrawViews;
 @property (nonatomic, strong) SDDrawView *currentDrawView;
 @property (nonatomic) SDDrawMode currentDrawMode;
