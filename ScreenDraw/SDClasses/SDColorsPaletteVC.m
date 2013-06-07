@@ -9,7 +9,7 @@
 #import "SDColorsPaletteVC.h"
 #import "UserPrefs.h"
 
-NSString *const KEY_COLORPICKER = @"Color_Picker";
+
 NSString *const KEY_BACKGROUND_COLOR = @"Background_Color";
 NSString *const KEY_FILL_COLOR = @"Fill_Color";
 NSString *const KEY_STROKE_COLOR = @"Stroke_Color";

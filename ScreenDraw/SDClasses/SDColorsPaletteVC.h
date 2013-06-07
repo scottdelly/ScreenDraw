@@ -10,8 +10,6 @@
 #import "SDColorPickerView.h"
 #import "ISColorWheel.h"
 
-FOUNDATION_EXPORT NSString *const KEY_COLORPICKER;
-
 @protocol SDColorsPaletteDelegate <NSObject>
 @required
 - (void)colorsDidChange;

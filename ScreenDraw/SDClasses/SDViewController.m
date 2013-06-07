@@ -13,6 +13,8 @@
 #import "ISColorWheel.h"
 #import "UIView+ScreenDraw.h"
 
+NSString *const KEY_TOOLPALETTE = @"Tool_Palette";
+NSString *const KEY_COLORPALETTE = @"Color_Palette";
 NSString *const KEY_DRAW_VIEWS = @"Draw_Views";
 NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
