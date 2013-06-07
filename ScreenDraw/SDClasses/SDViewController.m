@@ -87,8 +87,17 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     }
     
     [self.view addSubview:self.canvas];
-    self.toolActionSheet = [[UIActionSheet alloc] initWithTitle:@"Draw Mode" delegate:self cancelButtonTitle:@"Cancel" destructiveButtonTitle:nil otherButtonTitles:@"Line", @"Rectangle", @"Elipse", @"Brush", nil];
-    tempObject = [UserPrefs getObjectForKey:KEY_COLORPICKER];
+    
+    tempObject = [UserPrefs getObjectForKey:KEY_TOOLPALETTE];
+    if (tempObject && [tempObject isKindOfClass:[SDToolPaletteVC class]]) {
+        self.mainToolPalette = (SDToolPaletteVC *)tempObject;
+    } else {
+        self.mainToolPalette = [[SDToolPaletteVC alloc] init];
+    }
+    [self.mainToolPalette setDelegate:self];
+    [self addChildViewController:self.mainToolPalette];
+    
+    tempObject = [UserPrefs getObjectForKey:KEY_COLORPALETTE];
     if (tempObject && [tempObject isKindOfClass:[SDColorsPaletteVC class]]) {
         self.mainColorPalette = (SDColorsPaletteVC *)tempObject;
     } else {
@@ -356,7 +365,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     [self.colors setObject:color forKey:key];
     [self updateCanvas];
     [UserPrefs storeObject:self.colors forKey:KEY_COLOR_DICT];
-    [UserPrefs storeObject:self.mainColorPalette forKey:KEY_COLORPICKER];
+    [UserPrefs storeObject:self.mainColorPalette forKey:KEY_COLORPALETTE];
 }
 
 @end
