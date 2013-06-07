@@ -7,10 +7,17 @@
 //
 
 #import "SDMenuViewController.h"
+#import "SDDrawView.h"
+
+@protocol SDToolPaletteDelegate <NSObject>
+@required
+- (void)changeToTool:(SDDrawMode)mode;
+@end
 
 @interface SDToolPaletteVC : SDMenuViewController
 
-@property (nonatomic, strong) NSArray *toolButtons;
+@property (nonatomic, weak) id<SDToolPaletteDelegate>delegate;
+@property (nonatomic, strong) NSMutableArray *toolButtons;
 @property (nonatomic, strong) UIButton *brushButton;
 @property (nonatomic, strong) UIButton *elipseButton;
 @property (nonatomic, strong) UIButton *rectButton;
@@ -18,5 +25,7 @@
 @property (nonatomic, strong) UIButton *cameraButton;
 @property (nonatomic, strong) UISlider *brushSize;
 @property (nonatomic, strong) UIView *brushPreview;
+
+- (void)highlightButtonAtIndex:(NSInteger)index;
 
 @end
