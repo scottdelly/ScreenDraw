@@ -155,8 +155,16 @@
     
     CGFloat lineSize = self.lineSizeSlider.value;
     if (lineSize >0) {
-        UIColor *blackColor = [UIColor blackColor];
-        UIImage *previewImage = [UIImage elipseWithTopFillColor:blackColor bottomFillColor:blackColor strokeColor:[UIColor clearColor] inRect:CGRectMake(0, 0, lineSize, lineSize)];
+        CGRect previewRect = CGRectMake(0, 0, lineSize, lineSize);
+        UIColor *previewColor = [UIColor blackColor];
+        
+        UIImage *previewImage;
+        BOOL squarePreview = ([(UIButton *)[self.toolButtons objectAtIndex:drawModeLine] isSelected] || [(UIButton *)[self.toolButtons objectAtIndex:drawModeRect] isSelected]);
+        if (squarePreview) {
+            previewImage = [UIImage rectWithColor:previewColor inRect:previewRect];
+        } else {
+            previewImage = [UIImage elipseWithTopFillColor:previewColor bottomFillColor:previewColor strokeColor:[UIColor clearColor] inRect:previewRect];
+        }
         UIImageView *previewImageView = [[UIImageView alloc] initWithImage:previewImage];
         CGFloat imageViewX = (self.lineSizePreview.frame.size.width - previewImage.size.width)/2;
         [previewImageView setFrame:CGRectMake(imageViewX, imageViewX, previewImageView.frame.size.width, previewImageView.frame.size.height)];
@@ -209,7 +217,7 @@
         UIButton *pressedButton = (UIButton *)sender;
         
         [self highlightButtonAtIndex:[self.toolButtons indexOfObject:pressedButton]];
-        
+        [self updateLineSizePreview];
         if (self.delegate && [self.delegate respondsToSelector:@selector(changeToTool:)]){
             [self.delegate changeToTool:[self.toolButtons indexOfObject:sender]];
         }

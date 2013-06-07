@@ -10,7 +10,7 @@
 
 @implementation UIImage (ScreenDraw)
 
-+ (UIImage *)imageWithColor:(UIColor *)color inRect:(CGRect)rect
++ (UIImage *)rectWithColor:(UIColor *)color inRect:(CGRect)rect
 {
     UIGraphicsBeginImageContextWithOptions(rect.size, NO, 0.0f);
     CGContextRef context = UIGraphicsGetCurrentContext();
