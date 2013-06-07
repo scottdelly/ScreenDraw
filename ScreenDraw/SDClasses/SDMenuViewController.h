@@ -10,4 +10,7 @@
 
 @interface SDMenuViewController : UIViewController
 
+- (void)show;
+- (void)hideWithCompletion:(void(^)(void))block;
+
 @end

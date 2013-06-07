@@ -15,7 +15,7 @@
 NSString *const KEY_DRAW_VIEWS = @"Draw_Views";
 NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
-@interface SDViewController () <SDColorsPickerDelegate>
+@interface SDViewController () <SDColorsPaletteDelegate>
 
 @end
 
@@ -137,7 +137,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
         if ([event touchesForView:self.mainColorPalette.view]) {
             return [super touchesBegan:touches withEvent:event];
         } else {
-            [self toggleColorPickers];
+            [self toggleColorPalette];
         }
     }
     NSLog(@"Touches began");
@@ -226,10 +226,25 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 - (void)colorButtonPressed
 {
     NSLog(@"Color Button Pressed");
-    [self toggleColorPickers];
+    [self toggleColorPalette];
 }
 
-- (void)toggleColorPickers
+- (void)toggleToolPalette
+{
+    if (self.isShowingColorPicker) {
+        [self setIsShowingColorPicker:NO];
+        [self.mainColorPalette hideWithCompletion:^{
+            [self.mainColorPalette.view removeFromSuperview];
+        }];
+    } else {
+        [self.view addSubview:self.mainColorPalette.view];
+        [self.view bringSubviewToFront:self.mainColorPalette.view];
+        [self setIsShowingColorPicker:YES];
+        [self.mainColorPalette show];
+    }
+}
+
+- (void)toggleColorPalette
 {
     if (self.isShowingColorPicker) {
         [self setIsShowingColorPicker:NO];

@@ -11,4 +11,13 @@
 
 @implementation SDMenuViewController
 
+- (void)show{
+    
+}
+
+- (void)hideWithCompletion:(void (^)(void))block
+{
+    
+}
+
 @end
