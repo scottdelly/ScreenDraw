@@ -25,6 +25,7 @@
 		D2512C9D1746A4240038A511 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D2512C9B1746A4240038A511 /* InfoPlist.strings */; };
 		D2512CA01746A4240038A511 /* ScreenDrawTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D2512C9F1746A4240038A511 /* ScreenDrawTests.m */; };
 		D2804472176170EF0066DE14 /* SDToolPaletteVC.m in Sources */ = {isa = PBXBuildFile; fileRef = D2804471176170EF0066DE14 /* SDToolPaletteVC.m */; };
+		D2804475176195B40066DE14 /* UIImage+ScreenDraw.m in Sources */ = {isa = PBXBuildFile; fileRef = D2804474176195B40066DE14 /* UIImage+ScreenDraw.m */; };
 		D2978481174C0FC300169BF3 /* SDColorPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = D2978477174C0FC300169BF3 /* SDColorPickerView.m */; };
 		D2978482174C0FC300169BF3 /* SDColorsPaletteVC.m in Sources */ = {isa = PBXBuildFile; fileRef = D297847A174C0FC300169BF3 /* SDColorsPaletteVC.m */; };
 		D2978483174C0FC300169BF3 /* SDDrawView.m in Sources */ = {isa = PBXBuildFile; fileRef = D297847C174C0FC300169BF3 /* SDDrawView.m */; };
@@ -69,6 +70,8 @@
 		D2512C9F1746A4240038A511 /* ScreenDrawTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScreenDrawTests.m; sourceTree = "<group>"; };
 		D2804470176170EF0066DE14 /* SDToolPaletteVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDToolPaletteVC.h; sourceTree = "<group>"; };
 		D2804471176170EF0066DE14 /* SDToolPaletteVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDToolPaletteVC.m; sourceTree = "<group>"; };
+		D2804473176195B40066DE14 /* UIImage+ScreenDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ScreenDraw.h"; sourceTree = "<group>"; };
+		D2804474176195B40066DE14 /* UIImage+ScreenDraw.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "UIImage+ScreenDraw.m"; sourceTree = "<group>"; };
 		D2978476174C0FC300169BF3 /* SDColorPickerView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDColorPickerView.h; sourceTree = "<group>"; };
 		D2978477174C0FC300169BF3 /* SDColorPickerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDColorPickerView.m; sourceTree = "<group>"; };
 		D2978478174C0FC300169BF3 /* SDColorPickerViewDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDColorPickerViewDelegate.h; sourceTree = "<group>"; };
@@ -159,6 +162,8 @@
 				D2C18A701746B9E700513097 /* UserPrefs.m */,
 				D297848C174CB03700169BF3 /* UIView+ScreenDraw.h */,
 				D297848D174CB03700169BF3 /* UIView+ScreenDraw.m */,
+				D2804473176195B40066DE14 /* UIImage+ScreenDraw.h */,
+				D2804474176195B40066DE14 /* UIImage+ScreenDraw.m */,
 			);
 			path = ScreenDraw;
 			sourceTree = "<group>";
@@ -338,6 +343,7 @@
 				D297848B174C10E700169BF3 /* ISColorWheel.m in Sources */,
 				D297848E174CB03700169BF3 /* UIView+ScreenDraw.m in Sources */,
 				D2804472176170EF0066DE14 /* SDToolPaletteVC.m in Sources */,
+				D2804475176195B40066DE14 /* UIImage+ScreenDraw.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
