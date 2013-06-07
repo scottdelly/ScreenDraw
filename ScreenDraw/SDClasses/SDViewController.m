@@ -18,7 +18,7 @@ NSString *const KEY_COLORPALETTE = @"Color_Palette";
 NSString *const KEY_DRAW_VIEWS = @"Draw_Views";
 NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
-@interface SDViewController () <SDColorsPaletteDelegate>
+@interface SDViewController () <SDToolPaletteDelegate, SDColorsPaletteDelegate>
 
 @end
 
@@ -27,7 +27,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 @synthesize redoDrawViews;
 @synthesize shareButton, toolButton, colorButton;
 @synthesize undoBarButton, redoBarButton, clearBarButton;
-@synthesize toolActionSheet, mainColorPalette;
+@synthesize mainToolPalette, mainColorPalette;
 @synthesize isShowingColorPalette;
 @synthesize lineSize, colors;
 @synthesize currentDrawMode = _currentDrawMode;
@@ -123,10 +123,15 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     if (self.navigationController) {
         [self updateBarButtons];
     }
+    [self.mainToolPalette hideWithCompletion:^{
+        [self.mainToolPalette.view removeFromSuperview];
+    }];
+    
     [self.mainColorPalette hideWithCompletion:^{
         [self.mainColorPalette.view removeFromSuperview];
     }];
 
+    [self.mainToolPalette highlightButtonAtIndex:self.currentDrawMode];
     
     UIView* statusBarInterceptView = [[UIView alloc] initWithFrame:[UIApplication sharedApplication].statusBarFrame];
     statusBarInterceptView.backgroundColor = [UIColor clearColor];
@@ -144,6 +149,13 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 {
     if ([[event allTouches] count] > 1) {
         return [super touchesBegan:touches withEvent:event];
+    }
+    if (self.isShowingToolPalette) {
+        if ([event touchesForView:self.mainToolPalette.view]) {
+            return [super touchesBegan:touches withEvent:event];
+        } else {
+            [self toggleToolPalette];
+        }
     }
     if (self.isShowingColorPalette) {
         if ([event touchesForView:self.mainColorPalette.view]) {
@@ -174,7 +186,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     if ([[event allTouches] count] > 1) {
         return [super touchesBegan:touches withEvent:event];
     }
-    if (self.isShowingColorPalette) {
+    if (self.isShowingToolPalette || self.isShowingColorPalette) {
         return [super touchesBegan:touches withEvent:event];
     }
     UITouch *touch = [touches anyObject];
@@ -187,7 +199,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     if ([[event allTouches] count] > 1) {
         return [super touchesBegan:touches withEvent:event];
     }
-    if (self.isShowingColorPalette) {
+    if (self.isShowingToolPalette || self.isShowingColorPalette) {
         return [super touchesBegan:touches withEvent:event];
     }
     NSLog(@"touches ended");
@@ -232,7 +244,8 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 - (void)toolButtonPressed
 {
     NSLog(@"Tool Button Pressed");
-    [self.toolActionSheet showInView:self.view];
+//    [self.toolActionSheet showInView:self.view];
+    [self toggleToolPalette];
 }
 
 - (void)colorButtonPressed
@@ -321,6 +334,12 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     NSLog(@"Status bar tapped");
     BOOL navBarHidden = self.navigationController.navigationBarHidden;
     [self.navigationController setNavigationBarHidden:!navBarHidden animated:YES];
+    if (self.isShowingToolPalette) {
+        [self toggleToolPalette];
+    }
+    if (self.isShowingColorPalette) {
+        [self toggleColorPalette];
+    }
 }
 
 #pragma mark - AlertViewDelegate Methods
@@ -344,17 +363,15 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     }
 }
 
-#pragma mark - ActionSheetDelegate Methods
-
-- (void)actionSheet:(UIActionSheet *)actionSheet didDismissWithButtonIndex:(NSInteger)buttonIndex
+#pragma mark - SDToolPaletteDelegate Methods
+- (void)changeToTool:(SDDrawMode)mode
 {
-    NSLog(@"Action sheet dismissed with button at index: %i", buttonIndex);
-    if (buttonIndex < numModes) {
-        [self setCurrentDrawMode:buttonIndex];
+    if (mode < numModes) {
+        [self setCurrentDrawMode:mode];
     }
 }
 
-#pragma mark - SDColorPickerDelegate Methods
+#pragma mark - SDColorPaletteDelegate Methods
 -(void)colorsDidChange
 {
     [self updateCanvas];
