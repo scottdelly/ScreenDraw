@@ -201,7 +201,20 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 {
     NSLog(@"Share Button pressed");
     UIImage *flattenedImage = [UIView imageFromView:self.canvas];
+    [self flashScreen];
     UIImageWriteToSavedPhotosAlbum(flattenedImage, nil, nil, nil);
+}
+
+-(void) flashScreen {
+    UIWindow* keyWindow = [UIApplication sharedApplication].keyWindow;
+    UIView* wholeScreen = [[UIView alloc] initWithFrame: CGRectMake(0, 0, keyWindow.frame.size.width, keyWindow.frame.size.height)];
+    [keyWindow addSubview: wholeScreen];
+    wholeScreen.backgroundColor = [UIColor whiteColor];
+    [UIView animateWithDuration:1.0 animations:^{
+        wholeScreen.alpha = 0.0f;
+    } completion:^(BOOL finished) {
+        [wholeScreen removeFromSuperview];
+    }];
 }
 
 - (void)toolButtonPressed
