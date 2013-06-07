@@ -38,4 +38,6 @@ FOUNDATION_EXPORT NSString *const KEY_COLOR_DICT;
 @property (nonatomic, strong) SDColorsPaletteVC *mainColorPalette;
 @property (nonatomic) BOOL isShowingColorPicker;
 
+@property (nonatomic) BOOL isMovingNavBar;
+
 @end

@@ -29,6 +29,6 @@ FOUNDATION_EXPORT NSString *const KEY_COLORPICKER;
 @property (nonatomic, strong) SDColorPickerView *strokeColorPicker;
 
 - (void)show;
-- (void)hide;
+- (void)hideWithCompletion:(void(^)(void))block;
 
 @end

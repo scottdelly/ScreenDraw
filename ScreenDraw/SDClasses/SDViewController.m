@@ -21,7 +21,6 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
 @implementation SDViewController
 @synthesize canvas;
-//@synthesize drawViews;
 @synthesize redoDrawViews;
 @synthesize shareButton, toolButton, colorButton;
 @synthesize undoBarButton, redoBarButton, clearBarButton;
@@ -29,6 +28,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 @synthesize isShowingColorPicker;
 @synthesize lineSize, colors;
 @synthesize currentDrawMode = _currentDrawMode;
+@synthesize isMovingNavBar;
 
 
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
@@ -59,6 +59,9 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
                            [UIColor blackColor], KEY_FILL_COLOR,
                            [UIColor blackColor], KEY_STROKE_COLOR, nil];
         }
+        
+        [self setIsMovingNavBar:NO];
+        [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(statusBarTapped:) name:@"_UIApplicationSystemGestureStateChangedNotification" object:nil];
     }
     return self;
 }
@@ -112,7 +115,9 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     if (self.navigationController) {
         [self updateBarButtons];
     }
-    [self.mainColorPalette hide];
+    [self.mainColorPalette hideWithCompletion:^{
+        [self.mainColorPalette.view removeFromSuperview];
+    }];
     
     UIView* statusBarInterceptView = [[UIView alloc] initWithFrame:[UIApplication sharedApplication].statusBarFrame];
     statusBarInterceptView.backgroundColor = [UIColor clearColor];
@@ -188,7 +193,6 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 - (void)updateBarButtons
 {
     BOOL hasSubviews = ([self.canvas.subviews count] > 0);
-//    BOOL hasViews = ([self.drawViews count] > 0);
     BOOL hasRedoViews = ([self.redoDrawViews count] > 0);
     
     [self.undoBarButton setEnabled:hasSubviews];
@@ -218,14 +222,15 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 - (void)toggleColorPickers
 {
     if (self.isShowingColorPicker) {
-        [self.mainColorPalette hide];
         [self setIsShowingColorPicker:NO];
-        [self.mainColorPalette.view removeFromSuperview];
+        [self.mainColorPalette hideWithCompletion:^{
+            [self.mainColorPalette.view removeFromSuperview];
+        }];
     } else {
         [self.view addSubview:self.mainColorPalette.view];
         [self.view bringSubviewToFront:self.mainColorPalette.view];
-        [self.mainColorPalette show];
         [self setIsShowingColorPicker:YES];
+        [self.mainColorPalette show];
     }
 }
 
@@ -274,11 +279,18 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     [UserPrefs setDrawMode:currentDrawMode];
 }
 
-- (void)statusBarTapped
+- (void)statusBarTapped:(id)sender
 {
-    NSLog(@"Status bar tapped");
-    BOOL navBarHidden = self.navigationController.navigationBarHidden;
-    [self.navigationController setNavigationBarHidden:!navBarHidden animated:YES];
+    if (!self.isMovingNavBar) {
+        [self setIsMovingNavBar:YES];
+        BOOL navBarHidden = self.navigationController.navigationBarHidden;
+        [self.navigationController setNavigationBarHidden:!navBarHidden animated:YES];
+        [NSTimer scheduledTimerWithTimeInterval:.25 target:self selector:@selector(doneMovingNavBar:) userInfo:nil repeats:NO];
+    }
+}
+- (void)doneMovingNavBar:(id)sender
+{
+    [self setIsMovingNavBar:NO];
 }
 
 #pragma mark - AlertViewDelegate Methods
