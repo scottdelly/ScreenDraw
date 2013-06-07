@@ -12,7 +12,7 @@
 
 FOUNDATION_EXPORT NSString *const KEY_COLORPICKER;
 
-@protocol SDColorsPickerDelegate <NSObject>
+@protocol SDColorsPaletteDelegate <NSObject>
 @required
 - (void)colorsDidChange;
 - (void)changeToColor:(UIColor *)color forKey:(NSString *)key;
@@ -20,7 +20,7 @@ FOUNDATION_EXPORT NSString *const KEY_COLORPICKER;
 
 @interface SDColorsPaletteVC : SDMenuViewController <SDColorPickerViewDelegate>
 
-@property (nonatomic, weak) id<SDColorsPickerDelegate>delegate;
+@property (nonatomic, weak) id<SDColorsPaletteDelegate>delegate;
 
 @property (nonatomic, strong) NSMutableArray *colorPickers;
 
