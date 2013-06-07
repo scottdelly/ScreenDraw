@@ -132,7 +132,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     }];
 
     [self.mainToolPalette highlightButtonAtIndex:self.currentDrawMode];
-    
+    [self.mainToolPalette setLineSize:self.lineSize];
     UIView* statusBarInterceptView = [[UIView alloc] initWithFrame:[UIApplication sharedApplication].statusBarFrame];
     statusBarInterceptView.backgroundColor = [UIColor clearColor];
     UITapGestureRecognizer* tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(statusBarTapped)];
@@ -244,7 +244,6 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 - (void)toolButtonPressed
 {
     NSLog(@"Tool Button Pressed");
-//    [self.toolActionSheet showInView:self.view];
     [self toggleToolPalette];
 }
 
@@ -369,6 +368,12 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     if (mode < numModes) {
         [self setCurrentDrawMode:mode];
     }
+}
+
+- (void)changeLineSize:(CGFloat)size
+{
+    [self setLineSize:size];
+    [UserPrefs storeLineSize:size];
 }
 
 #pragma mark - SDColorPaletteDelegate Methods

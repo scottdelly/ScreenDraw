@@ -12,4 +12,6 @@
 
 + (UIImage *)imageWithColor:(UIColor *)color inRect:(CGRect)rect;
 + (UIImage *)roundedRectWithTopFillColor:(UIColor *)topFillColor bottomFillColor:(UIColor *)bottomFillColor strokeColor:(UIColor *)strokeColor inRect:(CGRect)rect;
++ (UIImage *)roundedRectWithTopFillColor:(UIColor *)topFillColor bottomFillColor:(UIColor *)bottomFillColor strokeColor:(UIColor *)strokeColor inRect:(CGRect)rect roundedCorners:(UIRectCorner)corners;
++ (UIImage *)elipseWithTopFillColor:(UIColor *)topFillColor bottomFillColor:(UIColor *)bottomFillColor strokeColor:(UIColor *)strokeColor inRect:(CGRect)rect;
 @end

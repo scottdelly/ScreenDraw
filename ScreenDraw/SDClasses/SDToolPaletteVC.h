@@ -12,20 +12,14 @@
 @protocol SDToolPaletteDelegate <NSObject>
 @required
 - (void)changeToTool:(SDDrawMode)mode;
+- (void)changeLineSize:(CGFloat)size;
 @end
 
-@interface SDToolPaletteVC : SDMenuViewController
+@interface SDToolPaletteVC : SDMenuViewController <NSCoding>
 
 @property (nonatomic, weak) id<SDToolPaletteDelegate>delegate;
-@property (nonatomic, strong) NSMutableArray *toolButtons;
-@property (nonatomic, strong) UIButton *brushButton;
-@property (nonatomic, strong) UIButton *elipseButton;
-@property (nonatomic, strong) UIButton *rectButton;
-@property (nonatomic, strong) UIButton *lineButton;
-@property (nonatomic, strong) UIButton *cameraButton;
-@property (nonatomic, strong) UISlider *brushSize;
-@property (nonatomic, strong) UIView *brushPreview;
 
 - (void)highlightButtonAtIndex:(NSInteger)index;
+- (void)setLineSize:(CGFloat)size;
 
 @end

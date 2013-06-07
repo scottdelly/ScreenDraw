@@ -31,7 +31,7 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 {
     CGRect frame = CGRectMake(0, 0, 120, 139);
     if (self = [super initWithFrame:frame]) {
-        CGFloat currentDrawHeight = 0;
+        CGFloat contentY = 0;
         CGRect labelFrame = CGRectMake(0, 0, frame.size.width, 16);
         self.titleLabel = [[UILabel alloc] initWithFrame:labelFrame];
         [self.titleLabel setBackgroundColor:[UIColor clearColor]];
@@ -39,11 +39,11 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         [self.titleLabel setFont:[UIFont systemFontOfSize:10]];
         [self.titleLabel setTextAlignment:NSTextAlignmentCenter];
         
-        currentDrawHeight += labelFrame.size.height;
-        self.mainColorWheel = [[ISColorWheel alloc] initWithFrame:CGRectMake(2, currentDrawHeight, 100, 100)];
+        contentY += labelFrame.size.height;
+        self.mainColorWheel = [[ISColorWheel alloc] initWithFrame:CGRectMake(2, contentY, 100, 100)];
         [self setupColorWheel];
         
-        currentDrawHeight += self.mainColorWheel.frame.size.height;
+        contentY += self.mainColorWheel.frame.size.height;
         self.brightnessSlider = [[UISlider alloc] initWithFrame:CGRectMake(60, 50, 100, 16)];
         [self.brightnessSlider addTarget:self action:@selector(brightnessSliderDidChange) forControlEvents:UIControlEventAllEvents];
         [self.brightnessSlider setContinuous:YES];
@@ -65,7 +65,7 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         UIImage *buttonBackSelected = [UIImage roundedRectWithTopFillColor:selectedTopColor bottomFillColor:selectedBottomColor strokeColor:[UIColor whiteColor] inRect:CGRectMake(0, 0, buttonWidth, buttonHeight)];
         
         self.clearButton = [UIButton buttonWithType:UIButtonTypeCustom];
-        [self.clearButton setFrame:CGRectMake(buttonMargin, currentDrawHeight, buttonWidth, buttonHeight)];
+        [self.clearButton setFrame:CGRectMake(buttonMargin, contentY, buttonWidth, buttonHeight)];
         [self.clearButton setTitle:@"X" forState:UIControlStateNormal];
         [self.clearButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [self.clearButton setBackgroundImage:buttonBack forState:UIControlStateNormal];
@@ -81,7 +81,7 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         
         self.masterColorButton = [UIButton buttonWithType:UIButtonTypeCustom];
         CGFloat masterColorButtonX = self.clearButton.frame.origin.x + self.clearButton.frame.size.width + 2*buttonMargin;
-        [self.masterColorButton setFrame:CGRectMake(masterColorButtonX, currentDrawHeight, buttonWidth, buttonHeight)];
+        [self.masterColorButton setFrame:CGRectMake(masterColorButtonX, contentY, buttonWidth, buttonHeight)];
         [self.masterColorButton setTitle:@"=" forState:UIControlStateNormal];
         [self.masterColorButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
         [self.masterColorButton setBackgroundImage:buttonBack forState:UIControlStateNormal];
