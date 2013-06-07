@@ -141,5 +141,13 @@
     return image;
 }
 
++ (UIImage*)rescaleImage:(UIImage *)image scaledToRect:(CGRect)newSize
+{
+    UIGraphicsBeginImageContextWithOptions(newSize.size, NO, 0.0f);
+    [image drawInRect:newSize];
+    UIImage *resImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return resImage;
+}
 
 @end

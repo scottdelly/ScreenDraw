@@ -10,9 +10,10 @@
 #import "SDDrawView.h"
 #import "UIImage+ScreenDraw.h"
 
-@interface SDToolPaletteVC ()
+@interface SDToolPaletteVC () <UIImagePickerControllerDelegate, UINavigationControllerDelegate>
 
 @property (nonatomic, strong) NSMutableArray *toolButtons;
+@property (nonatomic, strong) UIButton *imageButton;
 @property (nonatomic, strong) UIButton *cameraButton;
 @property (nonatomic, strong) UISlider *lineSizeSlider;
 @property (nonatomic, strong) UIView *lineSizePreview;
@@ -21,7 +22,9 @@
 
 @implementation SDToolPaletteVC
 @synthesize delegate;
+@synthesize imagePicker;
 @synthesize toolButtons;
+@synthesize imageButton;
 @synthesize cameraButton;
 @synthesize lineSizeSlider;
 @synthesize lineSizePreview;
@@ -34,6 +37,9 @@
         [self.lineSizeSlider setMaximumValue:100.0f];
         [self.lineSizeSlider setValue:50.0f];
         self.lineSizePreview = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        self.imageButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        self.cameraButton = [UIButton buttonWithType:UIButtonTypeCustom];
+
     }
     return self;
 }
@@ -137,7 +143,54 @@
     [self.lineSizeSlider addTarget:self action:@selector(lineSizeDidChange) forControlEvents:UIControlEventAllEvents];
     [self.lineSizeSlider setContinuous:YES];
     [self.view addSubview:self.lineSizeSlider];
+    contentY +=self.lineSizeSlider.frame.size.height + verticalPadding;
     
+    [self.imageButton setFrame:CGRectMake(buttonX, contentY, buttonWidth, buttonHeight)];
+    [self.imageButton setTitle:@"Image" forState:UIControlStateNormal];
+    [self.imageButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    
+    UIImage *buttonBack = [UIImage roundedRectWithTopFillColor:normalTopColor bottomFillColor:normalBottomColor strokeColor:[UIColor whiteColor] inRect:CGRectMake(0, 0, buttonWidth, buttonHeight)];
+    UIImage *buttonBackSelected = [UIImage roundedRectWithTopFillColor:selectedTopColor bottomFillColor:selectedBottomColor strokeColor:[UIColor whiteColor] inRect:CGRectMake(0, 0, buttonWidth, buttonHeight)];
+    
+    [self.imageButton setBackgroundImage:buttonBack forState:UIControlStateNormal];
+    [self.imageButton setBackgroundImage:buttonBackSelected forState:UIControlStateHighlighted];
+    [self.imageButton setBackgroundImage:buttonBackSelected forState:UIControlStateSelected];
+    [self.imageButton setBackgroundImage:buttonBackSelected forState:(UIControlStateSelected | UIControlStateHighlighted)];
+    [self.imageButton setTitleShadowColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+    [self.imageButton.titleLabel setShadowOffset:CGSizeMake(0, -.5)];
+    
+    [self.imageButton addTarget:self action:@selector(imageButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.imageButton];
+    
+    if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
+        contentY +=self.imageButton.frame.size.height + verticalPadding;
+        
+        [self.cameraButton setFrame:CGRectMake(buttonX, contentY, buttonWidth, buttonHeight)];
+        [self.cameraButton setTitle:@"Camera" forState:UIControlStateNormal];
+        [self.cameraButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        
+        UIImage *buttonBack = [UIImage roundedRectWithTopFillColor:normalTopColor bottomFillColor:normalBottomColor strokeColor:[UIColor whiteColor] inRect:CGRectMake(0, 0, buttonWidth, buttonHeight)];
+        UIImage *buttonBackSelected = [UIImage roundedRectWithTopFillColor:selectedTopColor bottomFillColor:selectedBottomColor strokeColor:[UIColor whiteColor] inRect:CGRectMake(0, 0, buttonWidth, buttonHeight)];
+        
+        [self.cameraButton setBackgroundImage:buttonBack forState:UIControlStateNormal];
+        [self.cameraButton setBackgroundImage:buttonBackSelected forState:UIControlStateHighlighted];
+        [self.cameraButton setBackgroundImage:buttonBackSelected forState:UIControlStateSelected];
+        [self.cameraButton setBackgroundImage:buttonBackSelected forState:(UIControlStateSelected | UIControlStateHighlighted)];
+        [self.cameraButton setTitleShadowColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+        [self.cameraButton.titleLabel setShadowOffset:CGSizeMake(0, -.5)];
+        
+        [self.cameraButton addTarget:self action:@selector(cameraButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+        [self.view addSubview:self.cameraButton];
+
+    }
+}
+
+- (void)viewDidLoad
+{
+    self.imagePicker = [[UIImagePickerController alloc] init];
+    self.imagePicker.allowsEditing = YES;
+    self.imagePicker.delegate = self;
+    self.imagePicker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
 }
 
 - (void)setLineSize:(CGFloat)size
@@ -225,12 +278,42 @@
 
 }
 
+- (void)imageButtonPressed:(id)sender
+{
+    [self.imagePicker setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
+    [self presentModalViewController:self.imagePicker animated:YES];
+}
+
+- (void)cameraButtonPressed:(id)sender
+{
+    [self.imagePicker setSourceType:UIImagePickerControllerSourceTypeCamera];
+    [[UIApplication sharedApplication] setStatusBarHidden:YES];
+    [self presentModalViewController:self.imagePicker animated:YES];
+}
+
 - (void)lineSizeDidChange
 {
     [self updateLineSizePreview];
     if (self.delegate && [self.delegate respondsToSelector:@selector(changeLineSize:)]){
         [self.delegate changeLineSize:[self.lineSizeSlider value]];
     }
+}
+
+#pragma mark - UIImagePickerControllerDelegate Methods
+- (void)imagePickerControllerDidCancel:(UIImagePickerController *)picker
+{
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
+    [self dismissModalViewControllerAnimated:YES];
+}
+
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(changeBackgroundImage:)]) {
+        [self.delegate changeBackgroundImage:[info objectForKey:UIImagePickerControllerOriginalImage]];
+    }
+    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
+    [self dismissModalViewControllerAnimated:YES];
 }
 
 @end

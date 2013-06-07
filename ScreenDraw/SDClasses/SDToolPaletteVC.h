@@ -13,11 +13,13 @@
 @required
 - (void)changeToTool:(SDDrawMode)mode;
 - (void)changeLineSize:(CGFloat)size;
+- (void)changeBackgroundImage:(UIImage *)image;
 @end
 
 @interface SDToolPaletteVC : SDMenuViewController <NSCoding>
 
 @property (nonatomic, weak) id<SDToolPaletteDelegate>delegate;
+@property (nonatomic, strong) UIImagePickerController *imagePicker;
 
 - (void)highlightButtonAtIndex:(NSInteger)index;
 - (void)setLineSize:(CGFloat)size;

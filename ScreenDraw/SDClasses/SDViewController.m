@@ -12,17 +12,20 @@
 #import "SDColorsPaletteVC.h"
 #import "ISColorWheel.h"
 #import "UIView+ScreenDraw.h"
+#import "UIImage+ScreenDraw.h"
 
 NSString *const KEY_TOOLPALETTE = @"Tool_Palette";
 NSString *const KEY_COLORPALETTE = @"Color_Palette";
 NSString *const KEY_DRAW_VIEWS = @"Draw_Views";
 NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
+NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
 
 @interface SDViewController () <SDToolPaletteDelegate, SDColorsPaletteDelegate>
 
 @end
 
 @implementation SDViewController
+@synthesize backgroundImage;
 @synthesize canvas;
 @synthesize redoDrawViews;
 @synthesize shareButton, toolButton, colorButton;
@@ -36,8 +39,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 - (id)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil
 {
     if (self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil]) {
-            
-
+        
         self.redoDrawViews = [NSMutableArray arrayWithCapacity:2];
         self.isShowingColorPalette = NO;
         self.currentDrawMode = [UserPrefs getDrawMode];
@@ -75,7 +77,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     }
     
     self.canvas = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-    
+
     NSObject *tempObject = [UserPrefs getObjectForKey:KEY_DRAW_VIEWS];
     if (tempObject && [tempObject isKindOfClass:[NSArray class]]) {
         NSArray *tempArray = (NSArray *)tempObject;
@@ -88,6 +90,16 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     
     [self.view addSubview:self.canvas];
     
+    tempObject = [UserPrefs getObjectForKey:KEY_BACKGROUND_IMAGE];
+    if (tempObject && [tempObject isKindOfClass:[UIView class]]) {
+        self.backgroundImage = (UIView *)tempObject;
+    } else {
+        self.backgroundImage = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+    }
+    
+    [self.view addSubview:self.backgroundImage];
+    [self.view sendSubviewToBack:self.backgroundImage];
+    
     tempObject = [UserPrefs getObjectForKey:KEY_TOOLPALETTE];
     if (tempObject && [tempObject isKindOfClass:[SDToolPaletteVC class]]) {
         self.mainToolPalette = (SDToolPaletteVC *)tempObject;
@@ -96,6 +108,11 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     }
     [self.mainToolPalette setDelegate:self];
     [self addChildViewController:self.mainToolPalette];
+    [self.mainToolPalette hideWithCompletion:^{
+        [self.mainToolPalette.view removeFromSuperview];
+    }];
+    [self.mainToolPalette highlightButtonAtIndex:self.currentDrawMode];
+    [self.mainToolPalette setLineSize:self.lineSize];
     
     tempObject = [UserPrefs getObjectForKey:KEY_COLORPALETTE];
     if (tempObject && [tempObject isKindOfClass:[SDColorsPaletteVC class]]) {
@@ -105,13 +122,11 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     }
     [self.mainColorPalette setDelegate:self];
     [self addChildViewController:self.mainColorPalette];
+    [self.mainColorPalette hideWithCompletion:^{
+        [self.mainColorPalette.view removeFromSuperview];
+    }];
     self.OBLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, self.view.frame.size.width, 30)];
-}
-
-- (void)viewWillAppear:(BOOL)animated
-{
-    [super viewWillAppear:animated];
-    [self updateCanvas];
+    
     if ([self.canvas.subviews count] < 1) {
         [self.OBLabel setText:@"Touch the screen to draw"];
         [self.OBLabel setTextAlignment:NSTextAlignmentCenter];
@@ -119,20 +134,17 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
         [self.OBLabel setBackgroundColor:[UIColor clearColor]];
         [self.view addSubview:self.OBLabel];
     }
-
+    
     if (self.navigationController) {
         [self updateBarButtons];
     }
-    [self.mainToolPalette hideWithCompletion:^{
-        [self.mainToolPalette.view removeFromSuperview];
-    }];
-    
-    [self.mainColorPalette hideWithCompletion:^{
-        [self.mainColorPalette.view removeFromSuperview];
-    }];
+}
 
-    [self.mainToolPalette highlightButtonAtIndex:self.currentDrawMode];
-    [self.mainToolPalette setLineSize:self.lineSize];
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [self updateCanvasColor];
+
     UIView* statusBarInterceptView = [[UIView alloc] initWithFrame:[UIApplication sharedApplication].statusBarFrame];
     statusBarInterceptView.backgroundColor = [UIColor clearColor];
     UITapGestureRecognizer* tapRecognizer = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(statusBarTapped)];
@@ -140,7 +152,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     [[[UIApplication sharedApplication].delegate window] addSubview:statusBarInterceptView];
 }
 
-- (void)updateCanvas
+- (void)updateCanvasColor
 {
     [self.canvas setBackgroundColor:[self.colors objectForKey:KEY_BACKGROUND_COLOR]];
 }
@@ -349,12 +361,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
         NSLog(@"User cancelled clear");
     } else {
         NSLog(@"User sleceted clear button");
-        for (NSObject *tempObject in self.canvas.subviews) {
-            if (tempObject && [tempObject isKindOfClass:[UIView class]]) {
-                UIView *drawView = (UIView *)tempObject;
-                [drawView removeFromSuperview];
-            }
-        }
+        [[self.canvas subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
         [self.redoDrawViews removeAllObjects];
         [self.view setNeedsDisplay];
         [UserPrefs clearDataForKey:KEY_DRAW_VIEWS];
@@ -376,16 +383,21 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     [UserPrefs storeLineSize:size];
 }
 
-#pragma mark - SDColorPaletteDelegate Methods
--(void)colorsDidChange
+- (void)changeBackgroundImage:(UIImage *)image
 {
-    [self updateCanvas];
+    [[self.backgroundImage subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
+    UIImage *scaledIamge = [UIImage rescaleImage:image scaledToRect:self.backgroundImage.frame];
+    UIImageView *backgroundImageView = [[UIImageView alloc] initWithImage:scaledIamge];
+    [self.backgroundImage addSubview:backgroundImageView];
+    [self.mainColorPalette clearBackgroundColor];
+    [UserPrefs storeObject:self.backgroundImage forKey:KEY_BACKGROUND_IMAGE];
 }
 
+#pragma mark - SDColorPaletteDelegate Methods
 -(void)changeToColor:(UIColor *)color forKey:(NSString *)key
 {
     [self.colors setObject:color forKey:key];
-    [self updateCanvas];
+    [self updateCanvasColor];
     [UserPrefs storeObject:self.colors forKey:KEY_COLOR_DICT];
     [UserPrefs storeObject:self.mainColorPalette forKey:KEY_COLORPALETTE];
 }

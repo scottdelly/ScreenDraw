@@ -12,7 +12,6 @@
 
 @protocol SDColorsPaletteDelegate <NSObject>
 @required
-- (void)colorsDidChange;
 - (void)changeToColor:(UIColor *)color forKey:(NSString *)key;
 @end
 
@@ -25,5 +24,7 @@
 @property (nonatomic, strong) SDColorPickerView *backgroundColorPicker;
 @property (nonatomic, strong) SDColorPickerView *fillColorPicker;
 @property (nonatomic, strong) SDColorPickerView *strokeColorPicker;
+
+- (void)clearBackgroundColor;
 
 @end

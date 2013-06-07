@@ -131,7 +131,6 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 
 - (void)clearButtonPressed
 {
-    NSLog(@"Clear button pressed");
     if (self.delegate && [self.delegate respondsToSelector:@selector(SDColorPickerDidClearColor:)]) {
         [self.delegate SDColorPickerDidClearColor:self];
     }
