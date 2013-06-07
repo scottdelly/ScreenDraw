@@ -30,6 +30,12 @@ NSString *const KEY_END_POINT = @"End_Point";
     return viewNumber++;
 }
 
++ (NSString *)nameForDrawMode:(SDDrawMode)mode
+{
+    NSArray *modeNames = [NSArray arrayWithObjects:@"Brush", @"Line", @"Rectangle", @"Elipse", nil];
+    return [modeNames objectAtIndex:mode];
+}
+
 - (id)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
         self.title = [NSString stringWithFormat:@"%i", [SDDrawView getViewNumber]];
@@ -72,7 +78,7 @@ NSString *const KEY_END_POINT = @"End_Point";
     CGContextClearRect(context, rect);
     CGContextSetLineWidth(context, self.lineSize);
     
-    if (self.drawMode == drawModeLine || self.drawMode == drawModeFree) {
+    if (self.drawMode == drawModeLine || self.drawMode == drawModeBrush) {
         CGContextSetFillColorWithColor(context, [self.fillColor CGColor]);
         CGContextSetStrokeColorWithColor(context, [self.fillColor CGColor]);
     } else {
@@ -107,7 +113,7 @@ NSString *const KEY_END_POINT = @"End_Point";
         CGRect newRect = CGRectMake(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
         CGContextStrokeEllipseInRect(context, newRect);
         CGContextFillEllipseInRect(context, newRect);
-    } else if (self.drawMode == drawModeFree && pointCount > 0){
+    } else if (self.drawMode == drawModeBrush && pointCount > 0){
         CGRect pointRect = CGRectMake(0, 0, self.lineSize, self.lineSize);
 
         for (int i = 0; i < [self.pointsArray count]; i++) {
@@ -153,7 +159,7 @@ NSString *const KEY_END_POINT = @"End_Point";
     NSValue *pointValue = [NSValue valueWithCGPoint:newPoint];
     if ([self.pointsDict count] == 0) {
         [self setStartPoint:point];
-    } else if (self.drawMode != drawModeFree) {
+    } else if (self.drawMode != drawModeBrush) {
         [self setEndPoint:point];
     } else {
         [self.pointsDict setObject:pointValue forKey:pointValue];

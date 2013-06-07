@@ -12,10 +12,10 @@ FOUNDATION_EXPORT NSString *const KEY_START_POINT;
 FOUNDATION_EXPORT NSString *const KEY_END_POINT;
 
 typedef enum SDDrawMode{
+    drawModeBrush,
     drawModeLine,
     drawModeRect,
     drawModeElipse,
-    drawModeFree,
     numModes
 }SDDrawMode;
 
@@ -32,7 +32,7 @@ typedef enum SDDrawMode{
 @property (nonatomic, strong) UIColor *fillColor;
 @property (nonatomic) NSInteger lineSize;
 
-
++ (NSString *)nameForDrawMode:(SDDrawMode)mode;
 - (id)initWithFrame:(CGRect)frame;
 - (void)addPoint:(CGPoint)point;
 - (void)setStartPoint:(CGPoint)point;

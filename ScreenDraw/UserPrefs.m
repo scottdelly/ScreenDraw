@@ -44,7 +44,7 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
     if (tempObject && [tempObject isKindOfClass:[NSNumber class]]) {
         return (SDDrawMode)[(NSNumber *)tempObject intValue];
     } else {
-        return drawModeFree;
+        return drawModeBrush;
     }
 }
 
