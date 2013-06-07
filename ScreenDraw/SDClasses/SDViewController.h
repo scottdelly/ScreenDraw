@@ -12,12 +12,12 @@
 FOUNDATION_EXPORT NSString *const KEY_DRAW_VIEWS;
 FOUNDATION_EXPORT NSString *const KEY_COLOR_DICT;
 
+@class SDToolPaletteVC;
 @class SDColorsPaletteVC;
 
 @interface SDViewController : UIViewController <UIAlertViewDelegate, UIActionSheetDelegate>
 
 @property (nonatomic, strong) UIView *canvas;
-//@property (nonatomic, strong) NSMutableArray *drawViews;
 @property (nonatomic, strong) NSMutableArray *redoDrawViews;
 @property (nonatomic, strong) SDDrawView *currentDrawView;
 @property (nonatomic) SDDrawMode currentDrawMode;
@@ -33,9 +33,12 @@ FOUNDATION_EXPORT NSString *const KEY_COLOR_DICT;
 
 @property (nonatomic, strong) UIActionSheet *toolActionSheet;
 
-@property (nonatomic) CGFloat lineSize;
 @property (nonatomic, strong) NSMutableDictionary *colors;
 @property (nonatomic, strong) SDColorsPaletteVC *mainColorPalette;
-@property (nonatomic) BOOL isShowingColorPicker;
+@property (nonatomic) BOOL isShowingColorPalette;
+
+@property (nonatomic) CGFloat lineSize;
+@property (nonatomic, strong) SDToolPaletteVC *mainToolPalette;
+@property (nonatomic) BOOL isShowingToolPalette;
 
 @end

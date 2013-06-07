@@ -8,6 +8,7 @@
 
 #import "SDViewController.h"
 #import "UserPrefs.h"
+#import "SDToolPaletteVC.h"
 #import "SDColorsPaletteVC.h"
 #import "ISColorWheel.h"
 #import "UIView+ScreenDraw.h"
@@ -25,7 +26,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 @synthesize shareButton, toolButton, colorButton;
 @synthesize undoBarButton, redoBarButton, clearBarButton;
 @synthesize toolActionSheet, mainColorPalette;
-@synthesize isShowingColorPicker;
+@synthesize isShowingColorPalette;
 @synthesize lineSize, colors;
 @synthesize currentDrawMode = _currentDrawMode;
 
@@ -36,7 +37,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
             
 
         self.redoDrawViews = [NSMutableArray arrayWithCapacity:2];
-        self.isShowingColorPicker = NO;
+        self.isShowingColorPalette = NO;
         self.currentDrawMode = [UserPrefs getDrawMode];
         
         self.shareButton = [[UIBarButtonItem alloc] initWithBarButtonSystemItem:UIBarButtonSystemItemAction target:self action:@selector(shareButtonPressed)];
@@ -133,7 +134,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     if ([[event allTouches] count] > 1) {
         return [super touchesBegan:touches withEvent:event];
     }
-    if (self.isShowingColorPicker) {
+    if (self.isShowingColorPalette) {
         if ([event touchesForView:self.mainColorPalette.view]) {
             return [super touchesBegan:touches withEvent:event];
         } else {
@@ -162,7 +163,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     if ([[event allTouches] count] > 1) {
         return [super touchesBegan:touches withEvent:event];
     }
-    if (self.isShowingColorPicker) {
+    if (self.isShowingColorPalette) {
         return [super touchesBegan:touches withEvent:event];
     }
     UITouch *touch = [touches anyObject];
@@ -175,7 +176,7 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
     if ([[event allTouches] count] > 1) {
         return [super touchesBegan:touches withEvent:event];
     }
-    if (self.isShowingColorPicker) {
+    if (self.isShowingColorPalette) {
         return [super touchesBegan:touches withEvent:event];
     }
     NSLog(@"touches ended");
@@ -231,30 +232,30 @@ NSString *const KEY_COLOR_DICT = @"Color_Dictionary";
 
 - (void)toggleToolPalette
 {
-    if (self.isShowingColorPicker) {
-        [self setIsShowingColorPicker:NO];
-        [self.mainColorPalette hideWithCompletion:^{
-            [self.mainColorPalette.view removeFromSuperview];
+    if (self.isShowingToolPalette) {
+        [self setIsShowingToolPalette:NO];
+        [self.mainToolPalette hideWithCompletion:^{
+            [self.mainToolPalette.view removeFromSuperview];
         }];
     } else {
-        [self.view addSubview:self.mainColorPalette.view];
-        [self.view bringSubviewToFront:self.mainColorPalette.view];
-        [self setIsShowingColorPicker:YES];
-        [self.mainColorPalette show];
+        [self.view addSubview:self.mainToolPalette.view];
+        [self.view bringSubviewToFront:self.mainToolPalette.view];
+        [self setIsShowingToolPalette:YES];
+        [self.mainToolPalette show];
     }
 }
 
 - (void)toggleColorPalette
 {
-    if (self.isShowingColorPicker) {
-        [self setIsShowingColorPicker:NO];
+    if (self.isShowingColorPalette) {
+        [self setIsShowingColorPalette:NO];
         [self.mainColorPalette hideWithCompletion:^{
             [self.mainColorPalette.view removeFromSuperview];
         }];
     } else {
         [self.view addSubview:self.mainColorPalette.view];
         [self.view bringSubviewToFront:self.mainColorPalette.view];
-        [self setIsShowingColorPicker:YES];
+        [self setIsShowingColorPalette:YES];
         [self.mainColorPalette show];
     }
 }
