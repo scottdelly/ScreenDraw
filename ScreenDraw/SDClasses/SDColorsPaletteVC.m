@@ -99,13 +99,17 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
     }];
 }
 
-- (void)hide
+- (void)hideWithCompletion:(void(^)(void))block
 {
     CGRect viewFrame = [[UIScreen mainScreen] bounds];
     viewFrame.origin.x = viewFrame.size.width;
     viewFrame.size.width = self.view.frame.size.width;
     [UIView animateWithDuration:0.2f animations:^{
         [self.view setFrame:viewFrame];
+    } completion:^(BOOL finished) {
+        if (block) {
+            block();
+        }
     }];
 }
 
