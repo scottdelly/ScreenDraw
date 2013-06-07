@@ -11,6 +11,12 @@
 
 @implementation SDMenuViewController
 
+- (void)loadView
+{
+    [super loadView];
+    [self.view setBackgroundColor:[UIColor colorWithWhite:.3 alpha:.75]];
+}
+
 - (void)show{
     
 }

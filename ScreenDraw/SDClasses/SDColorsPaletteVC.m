@@ -49,9 +49,7 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
 - (void)loadView
 {
     [super loadView];
-    
-    [self.view setBackgroundColor:[UIColor grayColor]];
-    
+        
     self.colorPickers = [NSMutableArray arrayWithCapacity:3];
     
     CGFloat frameX = [[UIScreen mainScreen] bounds].size.width;
