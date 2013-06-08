@@ -6,7 +6,8 @@
 
 @protocol ISColorWheelDelegate <NSObject>
 @required
-- (void)colorWheelDidChangeColor:(ISColorWheel*)colorWheel;
+- (void)colorWheelIsChanging:(ISColorWheel*)colorWheel;
+- (void)colorWheelDidFinishChanging:(ISColorWheel*)colorWheel;
 @end
 
 
@@ -26,6 +27,7 @@
 @property (nonatomic) BOOL showReticule;
 @property (nonatomic, strong) UIColor *reticuleColor;
 
+- (void)previewBrightness:(float)brightness;
 - (void)updateImage;
 - (UIColor*)currentColor;
 - (void)setCurrentColor:(UIColor*)color;

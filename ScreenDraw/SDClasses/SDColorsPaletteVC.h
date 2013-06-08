@@ -12,7 +12,8 @@
 
 @protocol SDColorsPaletteDelegate <NSObject>
 @required
-- (void)changeToColor:(UIColor *)color forKey:(NSString *)key;
+- (void)previewColor:(UIColor *)color forKey:(NSString *)key;
+- (void)setColor:(UIColor *)color forKey:(NSString *)key;
 @end
 
 @interface SDColorsPaletteVC : SDMenuViewController <SDColorPickerViewDelegate>

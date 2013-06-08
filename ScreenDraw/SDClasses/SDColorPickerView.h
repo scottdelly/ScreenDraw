@@ -23,6 +23,7 @@ FOUNDATION_EXPORT NSString *const KEY_SLIDER_VALUE;
 @property (nonatomic, strong) UIButton *masterColorButton;
 @property (nonatomic) BOOL isClear;
 
++ (CGRect)defaultFrame;
 - (void)clearButtonPressed;
 
 @end

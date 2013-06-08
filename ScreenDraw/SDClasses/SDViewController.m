@@ -399,7 +399,15 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
 }
 
 #pragma mark - SDColorPaletteDelegate Methods
--(void)changeToColor:(UIColor *)color forKey:(NSString *)key
+- (void)previewColor:(UIColor *)color forKey:(NSString *)key
+{
+    if (key == KEY_BACKGROUND_COLOR) {
+        [self.colors setObject:color forKey:key];
+        [self updateCanvasColor];
+    }
+}
+
+-(void)setColor:(UIColor *)color forKey:(NSString *)key
 {
     [self.colors setObject:color forKey:key];
     [self updateCanvasColor];

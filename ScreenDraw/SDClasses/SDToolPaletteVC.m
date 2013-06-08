@@ -17,6 +17,7 @@
 @property (nonatomic, strong) UIButton *cameraButton;
 @property (nonatomic, strong) UISlider *lineSizeSlider;
 @property (nonatomic, strong) UIView *lineSizePreview;
+@property (nonatomic) BOOL sliderInUse;
 
 @end
 
@@ -39,6 +40,7 @@
         self.lineSizePreview = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
         self.imageButton = [UIButton buttonWithType:UIButtonTypeCustom];
         self.cameraButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        self.sliderInUse = NO;
 
     }
     return self;
@@ -140,7 +142,9 @@
     lineSizeFrame.origin.x = (self.view.frame.size.width - lineSizeFrame.size.width)/2;
     lineSizeFrame.origin.y = contentY;
     [self.lineSizeSlider setFrame:lineSizeFrame];
-    [self.lineSizeSlider addTarget:self action:@selector(lineSizeDidChange) forControlEvents:UIControlEventAllEvents];
+    [self.lineSizeSlider addTarget:self action:@selector(sliderWillSlide) forControlEvents:UIControlEventTouchDown];
+    [self.lineSizeSlider addTarget:self action:@selector(sliderSliding) forControlEvents:UIControlEventValueChanged];
+    [self.lineSizeSlider addTarget:self action:@selector(sliderDidFinishSliding) forControlEvents:UIControlEventTouchUpInside];
     [self.lineSizeSlider setContinuous:YES];
     [self.view addSubview:self.lineSizeSlider];
     contentY +=self.lineSizeSlider.frame.size.height + verticalPadding;
@@ -292,9 +296,19 @@
     [self presentModalViewController:self.imagePicker animated:YES];
 }
 
-- (void)lineSizeDidChange
+- (void)sliderWillSlide
 {
+    
+}
+
+- (void)sliderSliding
+{
+    self.sliderInUse = YES;
     [self updateLineSizePreview];
+}
+
+- (void)sliderDidFinishSliding
+{
     if (self.delegate && [self.delegate respondsToSelector:@selector(changeLineSize:)]){
         [self.delegate changeLineSize:[self.lineSizeSlider value]];
     }

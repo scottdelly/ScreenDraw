@@ -10,6 +10,7 @@
 @class SDColorPickerView;
 @protocol SDColorPickerViewDelegate <NSObject>
 @required
+- (void)SDColorPickerIsChangingColor:(SDColorPickerView *)pickerView;
 - (void)SDColorPickerDidChangeColor:(SDColorPickerView *)pickerView;
 - (void)SDColorPickerDidClearColor:(SDColorPickerView *)pickerView;
 - (void)SDColorPickerIsMasterPicker:(SDColorPickerView *)masterPickerView;

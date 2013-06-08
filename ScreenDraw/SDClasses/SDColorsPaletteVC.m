@@ -22,9 +22,10 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
 - (id)init
 {
     if (self = [super init]) {
-        self.backgroundColorPicker = [SDColorPickerView new];
-        self.fillColorPicker = [SDColorPickerView new];
-        self.strokeColorPicker = [SDColorPickerView new];
+        CGRect defaultColorPickerViewFrame = [SDColorPickerView defaultFrame];
+        self.backgroundColorPicker = [[SDColorPickerView alloc] initWithFrame:defaultColorPickerViewFrame];
+        self.fillColorPicker = [[SDColorPickerView alloc] initWithFrame:defaultColorPickerViewFrame];
+        self.strokeColorPicker = [[SDColorPickerView alloc] initWithFrame:defaultColorPickerViewFrame];
     }
     return self;
 }
@@ -36,7 +37,7 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
         self.fillColorPicker = [aDecoder decodeObject];
         self.strokeColorPicker = [aDecoder decodeObject];
     }
-    return  self;
+    return self;
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
@@ -57,7 +58,7 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
 
     [self.view setFrame:CGRectMake(frameX, self.view.frame.origin.y, frameWidth, self.view.frame.size.height)];
 
-    CGRect backgroundColorPickerFrame = self.backgroundColorPicker.frame;
+    CGRect backgroundColorPickerFrame = [SDColorPickerView defaultFrame];
     backgroundColorPickerFrame.origin.y = 44;
     [self.backgroundColorPicker setFrame:backgroundColorPickerFrame];
     [self.backgroundColorPicker.titleLabel setText:@"Background Color"];
@@ -118,36 +119,44 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
     }
 }
 
-#pragma mark - SDColorPickerViewDelegate Methods
--(void)SDColorPickerDidChangeColor:(SDColorPickerView *)pickerView
+- (NSString *)keyForPickerView:(SDColorPickerView *)pickerView
 {
-    NSString *curKey;
     if (pickerView == self.backgroundColorPicker) {
-        curKey = KEY_BACKGROUND_COLOR;
-    } else if (pickerView == self.fillColorPicker) {
-        curKey = KEY_FILL_COLOR;
-    } else if (pickerView == self.strokeColorPicker) {
-        curKey = KEY_STROKE_COLOR;
+        return KEY_BACKGROUND_COLOR;
     }
+    if (pickerView == self.fillColorPicker) {
+        return KEY_FILL_COLOR;
+    }
+    if (pickerView == self.strokeColorPicker) {
+        return KEY_STROKE_COLOR;
+    }
+    return nil;
+}
+
+#pragma mark - SDColorPickerViewDelegate Methods
+- (void)SDColorPickerIsChangingColor:(SDColorPickerView *)pickerView
+{
+    NSString *curKey = [self keyForPickerView:pickerView];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(previewColor:forKey:)]) {
+        [self.delegate previewColor:pickerView.mainColorWheel.currentColor forKey:curKey];
+    }
+}
+
+- (void)SDColorPickerDidChangeColor:(SDColorPickerView *)pickerView
+{
+    NSString *curKey = [self keyForPickerView:pickerView];
     
-    if (self.delegate && [self.delegate respondsToSelector:@selector(changeToColor:forKey:)]) {
-        [self.delegate changeToColor:pickerView.mainColorWheel.currentColor forKey:curKey];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(setColor:forKey:)]) {
+        [self.delegate setColor:pickerView.mainColorWheel.currentColor forKey:curKey];
     }
 }
 
 - (void)SDColorPickerDidClearColor:(SDColorPickerView *)pickerView
 {
-    NSString *curKey;
-    if (pickerView == self.backgroundColorPicker) {
-        curKey = KEY_BACKGROUND_COLOR;
-    } else if (pickerView == self.fillColorPicker) {
-        curKey = KEY_FILL_COLOR;
-    } else if (pickerView == self.strokeColorPicker) {
-        curKey = KEY_STROKE_COLOR;
-    }
+    NSString *curKey = [self keyForPickerView:pickerView];
     
-    if (self.delegate && [self.delegate respondsToSelector:@selector(changeToColor:forKey:)]) {
-        [self.delegate changeToColor:[UIColor clearColor] forKey:curKey];
+    if (self.delegate && [self.delegate respondsToSelector:@selector(setColor:forKey:)]) {
+        [self.delegate setColor:[UIColor clearColor] forKey:curKey];
     }
 }
 

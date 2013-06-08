@@ -16,6 +16,8 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 
 @interface SDColorPickerView () <ISColorWheelDelegate>
 
+@property (nonatomic) BOOL sliderInUse;
+
 @end
 
 @implementation SDColorPickerView
@@ -26,10 +28,16 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 @synthesize clearButton;
 @synthesize masterColorButton;
 @synthesize isClear;
+@synthesize sliderInUse;
 
-- (id)init
+
++ (CGRect)defaultFrame
 {
-    CGRect frame = CGRectMake(0, 0, 120, 139);
+    return CGRectMake(0, 0, 120, 139);
+}
+
+- (id)initWithFrame:(CGRect)frame
+{
     if (self = [super initWithFrame:frame]) {
         CGFloat contentY = 0;
         CGRect labelFrame = CGRectMake(0, 0, frame.size.width, 16);
@@ -45,7 +53,9 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         
         contentY += self.mainColorWheel.frame.size.height;
         self.brightnessSlider = [[UISlider alloc] initWithFrame:CGRectMake(60, 50, 100, 16)];
-        [self.brightnessSlider addTarget:self action:@selector(brightnessSliderDidChange) forControlEvents:UIControlEventAllEvents];
+        [self.brightnessSlider addTarget:self action:@selector(sliderWillSlide) forControlEvents:UIControlEventTouchDown];
+        [self.brightnessSlider addTarget:self action:@selector(sliderSliding) forControlEvents:UIControlEventValueChanged];
+        [self.brightnessSlider addTarget:self action:@selector(sliderDidFinishSliding) forControlEvents:UIControlEventTouchUpInside];
         [self.brightnessSlider setContinuous:YES];
         [self.brightnessSlider setValue:1];
         
@@ -77,8 +87,6 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         
         [self.clearButton addTarget:self action:@selector(clearButtonPressed) forControlEvents:UIControlEventTouchUpInside];
         
-        
-        
         self.masterColorButton = [UIButton buttonWithType:UIButtonTypeCustom];
         CGFloat masterColorButtonX = self.clearButton.frame.origin.x + self.clearButton.frame.size.width + 2*buttonMargin;
         [self.masterColorButton setFrame:CGRectMake(masterColorButtonX, contentY, buttonWidth, buttonHeight)];
@@ -104,12 +112,20 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 
 - (id)initWithCoder:(NSCoder *)aDecoder
 {
-    if (self = [self init]) {
+    if (self = [self initWithFrame:[SDColorPickerView defaultFrame]]) {
+        if (self.mainColorWheel) {
+            [self.mainColorWheel removeFromSuperview];
+        }
         [self setMainColorWheel:[aDecoder decodeObject]];
         [self.brightnessSlider setValue:[aDecoder decodeFloatForKey:KEY_SLIDER_VALUE]];
         [self setupColorWheel];
     }
     return self;
+}
+
+- (void)postInit
+{
+    
 }
 
 - (void)encodeWithCoder:(NSCoder *)aCoder
@@ -124,10 +140,25 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
     [self addSubview:self.mainColorWheel];
 }
 
-- (void)brightnessSliderDidChange
+- (void)sliderWillSlide
 {
-    [self.mainColorWheel setBrightness:self.brightnessSlider.value];
+    //Nothing to do ATM
 }
+
+- (void)sliderSliding
+{
+    self.sliderInUse = YES;
+    [self.mainColorWheel previewBrightness:self.brightnessSlider.value];
+}
+
+- (void)sliderDidFinishSliding
+{
+    if (self.sliderInUse) {
+        [self setSliderInUse:NO];
+        [self.mainColorWheel setBrightness:self.brightnessSlider.value];
+    }
+}
+
 
 - (void)clearButtonPressed
 {
@@ -145,7 +176,16 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
     }
 }
 
--(void)colorWheelDidChangeColor:(ISColorWheel *)colorWheel
+#pragma mark - ISColorWheelDelegate Methods
+
+- (void)colorWheelIsChanging:(ISColorWheel *)colorWheel
+{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(SDColorPickerIsChangingColor:)]) {
+        [self.delegate SDColorPickerIsChangingColor:self];
+    }
+}
+
+- (void)colorWheelDidFinishChanging:(ISColorWheel *)colorWheel
 {
     if (self.delegate && [self.delegate respondsToSelector:@selector(SDColorPickerDidChangeColor:)]) {
         [self.delegate SDColorPickerDidChangeColor:self];
