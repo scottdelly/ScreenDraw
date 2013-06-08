@@ -76,6 +76,7 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
         self.navigationItem.rightBarButtonItems = [NSArray arrayWithObjects:self.colorButton, self.clearBarButton, self.redoBarButton, self.undoBarButton, nil];
     }
     
+    self.drawStack = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     self.canvas = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
 
     NSObject *tempObject = [UserPrefs getObjectForKey:KEY_DRAW_VIEWS];
@@ -88,7 +89,7 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
         }
     }
     
-    [self.view addSubview:self.canvas];
+    [self.drawStack addSubview:self.canvas];
     
     tempObject = [UserPrefs getObjectForKey:KEY_BACKGROUND_IMAGE];
     if (tempObject && [tempObject isKindOfClass:[UIView class]]) {
@@ -97,8 +98,11 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
         self.backgroundImage = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     }
     
-    [self.view addSubview:self.backgroundImage];
-    [self.view sendSubviewToBack:self.backgroundImage];
+    
+    [self.drawStack addSubview:self.backgroundImage];
+    [self.drawStack sendSubviewToBack:self.backgroundImage];
+    
+    [self.view addSubview:self.drawStack];
     
     tempObject = [UserPrefs getObjectForKey:KEY_TOOLPALETTE];
     if (tempObject && [tempObject isKindOfClass:[SDToolPaletteVC class]]) {
@@ -236,8 +240,9 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
 - (void)shareButtonPressed
 {
     NSLog(@"Share Button pressed");
-    UIImage *flattenedImage = [UIView imageFromView:self.canvas];
+    UIImage *flattenedImage = [UIView imageFromView:self.drawStack];
     [self flashScreen];
+    
     UIImageWriteToSavedPhotosAlbum(flattenedImage, nil, nil, nil);
 }
 
