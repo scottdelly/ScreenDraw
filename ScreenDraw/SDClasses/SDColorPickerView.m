@@ -56,6 +56,8 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         [self.brightnessSlider addTarget:self action:@selector(sliderWillSlide) forControlEvents:UIControlEventTouchDown];
         [self.brightnessSlider addTarget:self action:@selector(sliderSliding) forControlEvents:UIControlEventValueChanged];
         [self.brightnessSlider addTarget:self action:@selector(sliderDidFinishSliding) forControlEvents:UIControlEventTouchUpInside];
+        [self.brightnessSlider addTarget:self action:@selector(sliderDidFinishSliding) forControlEvents:UIControlEventTouchUpOutside];
+
         [self.brightnessSlider setContinuous:YES];
         [self.brightnessSlider setValue:1];
         

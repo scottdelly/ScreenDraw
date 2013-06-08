@@ -145,6 +145,7 @@
     [self.lineSizeSlider addTarget:self action:@selector(sliderWillSlide) forControlEvents:UIControlEventTouchDown];
     [self.lineSizeSlider addTarget:self action:@selector(sliderSliding) forControlEvents:UIControlEventValueChanged];
     [self.lineSizeSlider addTarget:self action:@selector(sliderDidFinishSliding) forControlEvents:UIControlEventTouchUpInside];
+    [self.lineSizeSlider addTarget:self action:@selector(sliderDidFinishSliding) forControlEvents:UIControlEventTouchUpOutside];
     [self.lineSizeSlider setContinuous:YES];
     [self.view addSubview:self.lineSizeSlider];
     contentY +=self.lineSizeSlider.frame.size.height + verticalPadding;
