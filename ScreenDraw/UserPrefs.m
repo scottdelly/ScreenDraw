@@ -17,9 +17,11 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
 
 + (void)storeObject:(NSObject *)object forKey:(NSString *)key
 {
-    NSData *objectData = [NSKeyedArchiver archivedDataWithRootObject:object];
-    [[NSUserDefaults standardUserDefaults] setObject:objectData forKey:key];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSData *objectData = [NSKeyedArchiver archivedDataWithRootObject:object];
+        [[NSUserDefaults standardUserDefaults] setObject:objectData forKey:key];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    });
 }
 
 + (NSObject *)getObjectForKey:(NSString *)key
@@ -33,8 +35,10 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
 
 + (void)clearDataForKey:(NSString *)key
 {
-    [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
-    [[NSUserDefaults standardUserDefaults] synchronize];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        [[NSUserDefaults standardUserDefaults] removeObjectForKey:key];
+        [[NSUserDefaults standardUserDefaults] synchronize];
+    });
 }
 
 + (SDDrawMode)getDrawMode
@@ -50,9 +54,11 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
 
 + (void)setDrawMode:(SDDrawMode)mode
 {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    [prefs setObject:[NSNumber numberWithInt:mode] forKey:KEY_DRAW_MODE];
-    [prefs synchronize];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        [prefs setObject:[NSNumber numberWithInt:mode] forKey:KEY_DRAW_MODE];
+        [prefs synchronize];
+    });
 }
 
 + (CGFloat)getLineSize
@@ -68,26 +74,30 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
 
 + (void)storeLineSize:(CGFloat)size
 {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    [prefs setObject:[NSNumber numberWithInt:size] forKey:KEY_LINE_SIZE];
-    [prefs synchronize];
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        [prefs setObject:[NSNumber numberWithInt:size] forKey:KEY_LINE_SIZE];
+        [prefs synchronize];
+    });
 }
 
-+ (void)storePoint:(CGPoint)point forKey:(NSString *)key
-{
-    NSValue *pointValue = [NSValue valueWithCGPoint:point];
-    NSData *pointData = [NSKeyedArchiver archivedDataWithRootObject:pointValue];
-    [[NSUserDefaults standardUserDefaults] setObject:pointData forKey:key];
-    [[NSUserDefaults standardUserDefaults] synchronize];
-}
-
-+ (NSValue *)getPointValueForKey:(NSString *)key
-{
-    NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
-    if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
-        return (NSValue *)[NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
-    }
-    return nil;
-}
+//+ (void)storePoint:(CGPoint)point forKey:(NSString *)key
+//{
+//    dispatch_async(dispatch_get_main_queue(), ^{
+//        NSValue *pointValue = [NSValue valueWithCGPoint:point];
+//        NSData *pointData = [NSKeyedArchiver archivedDataWithRootObject:pointValue];
+//        [[NSUserDefaults standardUserDefaults] setObject:pointData forKey:key];
+//        [[NSUserDefaults standardUserDefaults] synchronize];
+//    });
+//}
+//
+//+ (NSValue *)getPointValueForKey:(NSString *)key
+//{
+//    NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+//    if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
+//        return (NSValue *)[NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
+//    }
+//    return nil;
+//}
 
 @end
