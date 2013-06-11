@@ -26,6 +26,4 @@
 @property (nonatomic, strong) SDColorPickerView *fillColorPicker;
 @property (nonatomic, strong) SDColorPickerView *strokeColorPicker;
 
-- (void)clearBackgroundColor;
-
 @end

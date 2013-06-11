@@ -27,6 +27,7 @@
 @synthesize toolButtons;
 @synthesize imageButton;
 @synthesize cameraButton;
+@synthesize popover;
 @synthesize lineSizeSlider;
 @synthesize lineSizePreview;
 
@@ -286,8 +287,14 @@
 - (void)imageButtonPressed:(id)sender
 {
     [self.imagePicker setSourceType:UIImagePickerControllerSourceTypePhotoLibrary];
-    [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
-    [self presentModalViewController:self.imagePicker animated:YES];
+    
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        self.popover = [[UIPopoverController alloc] initWithContentViewController:self.imagePicker];
+        [popover presentPopoverFromRect:self.view.bounds inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:YES];
+    } else {
+        [[UIApplication sharedApplication] setStatusBarHidden:YES withAnimation:UIStatusBarAnimationSlide];
+        [self presentModalViewController:self.imagePicker animated:YES];
+    }
 }
 
 - (void)cameraButtonPressed:(id)sender
@@ -327,8 +334,14 @@
     if (self.delegate && [self.delegate respondsToSelector:@selector(changeBackgroundImage:)]) {
         [self.delegate changeBackgroundImage:[info objectForKey:UIImagePickerControllerOriginalImage]];
     }
-    [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
-    [self dismissModalViewControllerAnimated:YES];
+    
+    if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {
+        [self.popover dismissPopoverAnimated:YES];
+    } else {
+        [[UIApplication sharedApplication] setStatusBarHidden:NO withAnimation:UIStatusBarAnimationSlide];
+        [self dismissModalViewControllerAnimated:YES];
+    }
+    
 }
 
 @end

@@ -20,6 +20,7 @@
 
 @property (nonatomic, weak) id<SDToolPaletteDelegate>delegate;
 @property (nonatomic, strong) UIImagePickerController *imagePicker;
+@property (nonatomic, strong) UIPopoverController *popover;
 
 - (void)highlightButtonAtIndex:(NSInteger)index;
 - (void)setLineSize:(CGFloat)size;

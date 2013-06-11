@@ -394,7 +394,7 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
     UIImage *scaledIamge = [UIImage rescaleImage:image scaledToRect:self.backgroundImage.frame];
     UIImageView *backgroundImageView = [[UIImageView alloc] initWithImage:scaledIamge];
     [self.backgroundImage addSubview:backgroundImageView];
-    [self.mainColorPalette clearBackgroundColor];
+    [self.mainColorPalette.backgroundColorPicker setClear:YES];
     [UserPrefs storeObject:self.backgroundImage forKey:KEY_BACKGROUND_IMAGE];
 }
 

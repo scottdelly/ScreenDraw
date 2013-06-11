@@ -27,7 +27,7 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 @synthesize brightnessSlider;
 @synthesize clearButton;
 @synthesize masterColorButton;
-@synthesize isClear;
+@synthesize clear = _clear;
 @synthesize sliderInUse;
 
 
@@ -107,7 +107,7 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
         [self addSubview:self.clearButton];
         [self addSubview:self.masterColorButton];
         
-        self.isClear = NO;
+        _clear = NO;
     }
     return self;
 }
@@ -161,13 +161,31 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
     }
 }
 
+- (void)setClear:(BOOL)clear
+{
+    _clear = clear;
+    if (_clear) {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(SDColorPickerDidClearColor:)])
+        {
+            [self.delegate SDColorPickerDidClearColor:self];
+        }
+    } else {
+        if (self.delegate && [self.delegate respondsToSelector:@selector(SDColorPickerDidChangeColor:)])
+        {
+            [self.delegate SDColorPickerDidChangeColor:self];
+        }
+    }
+    [self.mainColorWheel setShowReticule:!_clear];
+}
 
 - (void)clearButtonPressed
 {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(SDColorPickerDidClearColor:)]) {
-        [self.delegate SDColorPickerDidClearColor:self];
-    }
-    [self.mainColorWheel setShowReticule:!self.mainColorWheel.showReticule];
+    [self toggleClear];
+}
+
+- (void)toggleClear
+{
+    [self setClear:!self.isClear];
 }
 
 - (void)masterButtonPressed
@@ -182,6 +200,7 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 
 - (void)colorWheelIsChanging:(ISColorWheel *)colorWheel
 {
+    _clear = false;
     if (self.delegate && [self.delegate respondsToSelector:@selector(SDColorPickerIsChangingColor:)]) {
         [self.delegate SDColorPickerIsChangingColor:self];
     }
@@ -189,7 +208,8 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
 
 - (void)colorWheelDidFinishChanging:(ISColorWheel *)colorWheel
 {
-    if (self.delegate && [self.delegate respondsToSelector:@selector(SDColorPickerDidChangeColor:)]) {
+    if (self.delegate && [self.delegate respondsToSelector:@selector(SDColorPickerDidChangeColor:)])
+    {
         [self.delegate SDColorPickerDidChangeColor:self];
     }
 }

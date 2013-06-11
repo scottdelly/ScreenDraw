@@ -112,13 +112,6 @@ NSString *const KEY_STROKE_COLOR = @"Stroke_Color";
     }];
 }
 
-- (void)clearBackgroundColor
-{
-    if (!self.backgroundColorPicker.isClear) {
-        [self.backgroundColorPicker clearButtonPressed];
-    }
-}
-
 - (NSString *)keyForPickerView:(SDColorPickerView *)pickerView
 {
     if (pickerView == self.backgroundColorPicker) {
