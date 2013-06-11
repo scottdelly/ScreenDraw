@@ -332,7 +332,10 @@
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
 {
     if (self.delegate && [self.delegate respondsToSelector:@selector(changeBackgroundImage:)]) {
-        [self.delegate changeBackgroundImage:[info objectForKey:UIImagePickerControllerOriginalImage]];
+        UIImage *newImage;
+//        if ([info objectForKey:UIImagePickerControllerEditedImage]) {
+        newImage = [info objectForKey:UIImagePickerControllerOriginalImage];
+        [self.delegate changeBackgroundImage:newImage];
     }
     
     if ([[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad) {

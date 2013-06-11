@@ -25,7 +25,7 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
 @end
 
 @implementation SDViewController
-@synthesize backgroundImage;
+@synthesize backgroundImageView;
 @synthesize canvas;
 @synthesize redoDrawViews;
 @synthesize shareButton, toolButton, colorButton;
@@ -92,15 +92,16 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
     [self.drawStack addSubview:self.canvas];
     
     tempObject = [UserPrefs getObjectForKey:KEY_BACKGROUND_IMAGE];
-    if (tempObject && [tempObject isKindOfClass:[UIView class]]) {
-        self.backgroundImage = (UIView *)tempObject;
+    if (tempObject && [tempObject isKindOfClass:[UIImageView class]]) {
+        self.backgroundImageView = (UIImageView *)tempObject;
     } else {
-        self.backgroundImage = [[UIView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+        self.backgroundImageView = [[UIImageView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
+        [self.backgroundImageView setContentMode:UIViewContentModeScaleAspectFill];
     }
     
     
-    [self.drawStack addSubview:self.backgroundImage];
-    [self.drawStack sendSubviewToBack:self.backgroundImage];
+    [self.drawStack addSubview:self.backgroundImageView];
+    [self.drawStack sendSubviewToBack:self.backgroundImageView];
     
     [self.view addSubview:self.drawStack];
     
@@ -390,12 +391,10 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
 
 - (void)changeBackgroundImage:(UIImage *)image
 {
-    [[self.backgroundImage subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
-    UIImage *scaledIamge = [UIImage rescaleImage:image scaledToRect:self.backgroundImage.frame];
-    UIImageView *backgroundImageView = [[UIImageView alloc] initWithImage:scaledIamge];
-    [self.backgroundImage addSubview:backgroundImageView];
+    UIImage *scaledIamge = [UIImage rescaleImage:image scaledToRect:self.backgroundImageView.frame];
+    [self.backgroundImageView setImage:scaledIamge];
     [self.mainColorPalette.backgroundColorPicker setClear:YES];
-    [UserPrefs storeObject:self.backgroundImage forKey:KEY_BACKGROUND_IMAGE];
+    [UserPrefs storeObject:self.backgroundImageView forKey:KEY_BACKGROUND_IMAGE];
 }
 
 #pragma mark - SDColorPaletteDelegate Methods
