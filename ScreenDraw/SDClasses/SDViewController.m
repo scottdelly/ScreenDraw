@@ -13,6 +13,7 @@
 #import "ISColorWheel.h"
 #import "UIView+ScreenDraw.h"
 #import "UIImage+ScreenDraw.h"
+#import <QuartzCore/QuartzCore.h>
 
 NSString *const KEY_TOOLPALETTE = @"Tool_Palette";
 NSString *const KEY_COLORPALETTE = @"Color_Palette";
@@ -130,10 +131,11 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
     [self.mainColorPalette hideWithCompletion:^{
         [self.mainColorPalette.view removeFromSuperview];
     }];
-    self.OBLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, self.view.frame.size.width, 30)];
+    self.OBLabel = [[UILabel alloc] initWithFrame:CGRectMake(0, 100, self.view.frame.size.width, 60)];
     
     if ([self.canvas.subviews count] < 1) {
-        [self.OBLabel setText:@"Touch the screen to draw"];
+        [self.OBLabel setNumberOfLines:3];
+        [self.OBLabel setText:@"Tap the clock to hide the toolbar\n\nTouch the screen to draw"];
         [self.OBLabel setTextAlignment:NSTextAlignmentCenter];
         [self.OBLabel setTextColor:[UIColor grayColor]];
         [self.OBLabel setBackgroundColor:[UIColor clearColor]];
