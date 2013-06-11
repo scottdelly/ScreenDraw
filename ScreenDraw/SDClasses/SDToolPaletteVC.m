@@ -16,7 +16,7 @@
 @property (nonatomic, strong) UIButton *imageButton;
 @property (nonatomic, strong) UIButton *cameraButton;
 @property (nonatomic, strong) UISlider *lineSizeSlider;
-@property (nonatomic, strong) UIView *lineSizePreview;
+@property (nonatomic, strong) UIImageView *lineSizePreview;
 @property (nonatomic) BOOL sliderInUse;
 
 @end
@@ -38,7 +38,8 @@
         self.lineSizeSlider = [[UISlider alloc] initWithFrame:CGRectMake(0, 0, 100, 16)];
         [self.lineSizeSlider setMaximumValue:100.0f];
         [self.lineSizeSlider setValue:50.0f];
-        self.lineSizePreview = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        self.lineSizePreview = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, 100, 100)];
+        [self.lineSizePreview setContentMode:UIViewContentModeCenter];
         self.imageButton = [UIButton buttonWithType:UIButtonTypeCustom];
         self.cameraButton = [UIButton buttonWithType:UIButtonTypeCustom];
         self.sliderInUse = NO;
@@ -210,7 +211,6 @@
 - (void)updateLineSizePreview
 {
     [self.lineSizePreview removeFromSuperview];
-    [[self.lineSizePreview subviews] makeObjectsPerformSelector:@selector(removeFromSuperview)];
     
     CGFloat lineSize = self.lineSizeSlider.value;
     if (lineSize >0) {
@@ -224,10 +224,10 @@
         } else {
             previewImage = [UIImage elipseWithTopFillColor:previewColor bottomFillColor:previewColor strokeColor:[UIColor clearColor] inRect:previewRect];
         }
-        UIImageView *previewImageView = [[UIImageView alloc] initWithImage:previewImage];
-        CGFloat imageViewX = (self.lineSizePreview.frame.size.width - previewImage.size.width)/2;
-        [previewImageView setFrame:CGRectMake(imageViewX, imageViewX, previewImageView.frame.size.width, previewImageView.frame.size.height)];
-        [self.lineSizePreview addSubview:previewImageView];
+        [self.lineSizePreview setImage:previewImage];
+//        CGFloat imageViewX = (self.lineSizePreview.frame.size.width - previewImage.size.width)/2;
+//        [previewImageView setFrame:CGRectMake(imageViewX, imageViewX, previewImageView.frame.size.width, previewImageView.frame.size.height)];
+//        [ addSubview:previewImageView];
     }
     [self.view addSubview:self.lineSizePreview];
 }
