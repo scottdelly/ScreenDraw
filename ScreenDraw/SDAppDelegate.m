@@ -8,6 +8,7 @@
 
 #import "SDAppDelegate.h"
 #import "SDViewController.h"
+#import "Flurry.h"
 
 @implementation SDAppDelegate
 
@@ -17,6 +18,7 @@
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions
 {
+    [Flurry startSession:@"D9W4BK67MM5JMV9W46R2"];
     self.window = [[UIWindow alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
     // Override point for customization after application launch.
     self.window.backgroundColor = [UIColor clearColor];

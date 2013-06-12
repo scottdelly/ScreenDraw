@@ -24,6 +24,9 @@
 		D2512C951746A4240038A511 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D2512C741746A4240038A511 /* CoreData.framework */; };
 		D2512C9D1746A4240038A511 /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = D2512C9B1746A4240038A511 /* InfoPlist.strings */; };
 		D2512CA01746A4240038A511 /* ScreenDrawTests.m in Sources */ = {isa = PBXBuildFile; fileRef = D2512C9F1746A4240038A511 /* ScreenDrawTests.m */; };
+		D25D431B1767C61A00C94FA7 /* libFlurry.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D25D431A1767C61A00C94FA7 /* libFlurry.a */; };
+		D25D431D1767C65E00C94FA7 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = D25D431C1767C65E00C94FA7 /* SystemConfiguration.framework */; };
+		D25D43201767CC8F00C94FA7 /* NSCoder+ScreenDraw.m in Sources */ = {isa = PBXBuildFile; fileRef = D25D431F1767CC8F00C94FA7 /* NSCoder+ScreenDraw.m */; };
 		D2804472176170EF0066DE14 /* SDToolPaletteVC.m in Sources */ = {isa = PBXBuildFile; fileRef = D2804471176170EF0066DE14 /* SDToolPaletteVC.m */; };
 		D2804475176195B40066DE14 /* UIImage+ScreenDraw.m in Sources */ = {isa = PBXBuildFile; fileRef = D2804474176195B40066DE14 /* UIImage+ScreenDraw.m */; };
 		D2978481174C0FC300169BF3 /* SDColorPickerView.m in Sources */ = {isa = PBXBuildFile; fileRef = D2978477174C0FC300169BF3 /* SDColorPickerView.m */; };
@@ -68,6 +71,11 @@
 		D2512C9C1746A4240038A511 /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		D2512C9E1746A4240038A511 /* ScreenDrawTests.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ScreenDrawTests.h; sourceTree = "<group>"; };
 		D2512C9F1746A4240038A511 /* ScreenDrawTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ScreenDrawTests.m; sourceTree = "<group>"; };
+		D25D43191767C61A00C94FA7 /* Flurry.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Flurry.h; sourceTree = "<group>"; };
+		D25D431A1767C61A00C94FA7 /* libFlurry.a */ = {isa = PBXFileReference; lastKnownFileType = archive.ar; path = libFlurry.a; sourceTree = "<group>"; };
+		D25D431C1767C65E00C94FA7 /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
+		D25D431E1767CC8E00C94FA7 /* NSCoder+ScreenDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSCoder+ScreenDraw.h"; sourceTree = "<group>"; };
+		D25D431F1767CC8F00C94FA7 /* NSCoder+ScreenDraw.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSCoder+ScreenDraw.m"; sourceTree = "<group>"; };
 		D2804470176170EF0066DE14 /* SDToolPaletteVC.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDToolPaletteVC.h; sourceTree = "<group>"; };
 		D2804471176170EF0066DE14 /* SDToolPaletteVC.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDToolPaletteVC.m; sourceTree = "<group>"; };
 		D2804473176195B40066DE14 /* UIImage+ScreenDraw.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "UIImage+ScreenDraw.h"; sourceTree = "<group>"; };
@@ -96,10 +104,12 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				D25D431D1767C65E00C94FA7 /* SystemConfiguration.framework in Frameworks */,
 				D2512C6F1746A4240038A511 /* UIKit.framework in Frameworks */,
 				D2512C711746A4240038A511 /* Foundation.framework in Frameworks */,
 				D2512C731746A4240038A511 /* CoreGraphics.framework in Frameworks */,
 				D2512C751746A4240038A511 /* CoreData.framework in Frameworks */,
+				D25D431B1767C61A00C94FA7 /* libFlurry.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -139,8 +149,10 @@
 		D2512C6D1746A4240038A511 /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				D25D43181767C61A00C94FA7 /* Flurry */,
 				D2978489174C10E700169BF3 /* ISColorWheel.h */,
 				D297848A174C10E700169BF3 /* ISColorWheel.m */,
+				D25D431C1767C65E00C94FA7 /* SystemConfiguration.framework */,
 				D2512C6E1746A4240038A511 /* UIKit.framework */,
 				D2512C701746A4240038A511 /* Foundation.framework */,
 				D2512C721746A4240038A511 /* CoreGraphics.framework */,
@@ -164,6 +176,8 @@
 				D297848D174CB03700169BF3 /* UIView+ScreenDraw.m */,
 				D2804473176195B40066DE14 /* UIImage+ScreenDraw.h */,
 				D2804474176195B40066DE14 /* UIImage+ScreenDraw.m */,
+				D25D431E1767CC8E00C94FA7 /* NSCoder+ScreenDraw.h */,
+				D25D431F1767CC8F00C94FA7 /* NSCoder+ScreenDraw.m */,
 			);
 			path = ScreenDraw;
 			sourceTree = "<group>";
@@ -199,6 +213,15 @@
 				D2512C9B1746A4240038A511 /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		D25D43181767C61A00C94FA7 /* Flurry */ = {
+			isa = PBXGroup;
+			children = (
+				D25D43191767C61A00C94FA7 /* Flurry.h */,
+				D25D431A1767C61A00C94FA7 /* libFlurry.a */,
+			);
+			path = Flurry;
 			sourceTree = "<group>";
 		};
 		D2978475174C0FC300169BF3 /* SDClasses */ = {
@@ -344,6 +367,7 @@
 				D297848E174CB03700169BF3 /* UIView+ScreenDraw.m in Sources */,
 				D2804472176170EF0066DE14 /* SDToolPaletteVC.m in Sources */,
 				D2804475176195B40066DE14 /* UIImage+ScreenDraw.m in Sources */,
+				D25D43201767CC8F00C94FA7 /* NSCoder+ScreenDraw.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -449,6 +473,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ScreenDraw/ScreenDraw-Prefix.pch";
 				INFOPLIST_FILE = "ScreenDraw/ScreenDraw-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/Flurry\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
@@ -460,6 +489,11 @@
 				GCC_PRECOMPILE_PREFIX_HEADER = YES;
 				GCC_PREFIX_HEADER = "ScreenDraw/ScreenDraw-Prefix.pch";
 				INFOPLIST_FILE = "ScreenDraw/ScreenDraw-Info.plist";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)\"",
+					"\"$(SRCROOT)/Flurry\"",
+				);
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				WRAPPER_EXTENSION = app;
 			};
