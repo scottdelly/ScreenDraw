@@ -21,7 +21,7 @@ typedef enum SDDrawMode{
 
 @interface SDDrawView : UIView <NSCoding>
 {
-    @private CGPoint *pointsArray[4];
+//    @private CGPoint *_pointsArray[4];
 }
 @property (nonatomic, strong) NSString *title;
 //@property (nonatomic, strong) NSMutableDictionary *pointsDict;
