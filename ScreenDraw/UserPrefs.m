@@ -26,11 +26,13 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
 
 + (NSObject *)getObjectForKey:(NSString *)key
 {
-    NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
-    if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
-        return [NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
+    @synchronized(self){
+        NSObject *tempObject = [[NSUserDefaults standardUserDefaults] objectForKey:key];
+        if (tempObject && [tempObject isKindOfClass:[NSData class]]) {
+            return [NSKeyedUnarchiver unarchiveObjectWithData:(NSData *)tempObject];
+        }
+        return nil;
     }
-    return nil;
 }
 
 + (void)clearDataForKey:(NSString *)key
@@ -43,13 +45,15 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
 
 + (SDDrawMode)getDrawMode
 {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSObject *tempObject = [prefs objectForKey:KEY_DRAW_MODE];
-    if (tempObject && [tempObject isKindOfClass:[NSNumber class]]) {
-        return (SDDrawMode)[(NSNumber *)tempObject intValue];
-    } else {
-        return drawModeBrush;
-    }
+    @synchronized(self){
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        NSObject *tempObject = [prefs objectForKey:KEY_DRAW_MODE];
+        if (tempObject && [tempObject isKindOfClass:[NSNumber class]]) {
+            return (SDDrawMode)[(NSNumber *)tempObject intValue];
+        } else {
+            return drawModeBrush;
+        }
+    };
 }
 
 + (void)setDrawMode:(SDDrawMode)mode
@@ -63,12 +67,14 @@ NSString *const KEY_LINE_SIZE = @"Line_Size";
 
 + (CGFloat)getLineSize
 {
-    NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
-    NSObject *tempObject = [prefs objectForKey:KEY_LINE_SIZE];
-    if (tempObject && [tempObject isKindOfClass:[NSNumber class]]) {
-        return (CGFloat)[(NSNumber *)tempObject floatValue];
-    } else {
-        return 10.0f;
+    @synchronized(self){
+        NSUserDefaults *prefs = [NSUserDefaults standardUserDefaults];
+        NSObject *tempObject = [prefs objectForKey:KEY_LINE_SIZE];
+        if (tempObject && [tempObject isKindOfClass:[NSNumber class]]) {
+            return (CGFloat)[(NSNumber *)tempObject floatValue];
+        } else {
+            return 10.0f;
+        }
     }
 }
 

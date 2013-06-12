@@ -125,11 +125,6 @@ NSString *const KEY_SLIDER_VALUE = @"Slider_Value";
     return self;
 }
 
-- (void)postInit
-{
-    
-}
-
 - (void)encodeWithCoder:(NSCoder *)aCoder
 {
     [aCoder encodeObject:self.mainColorWheel];

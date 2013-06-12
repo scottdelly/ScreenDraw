@@ -194,10 +194,8 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
     [self.currentDrawView setStrokeColor:[self.colors objectForKey:KEY_STROKE_COLOR]];
     [self.currentDrawView setLineSize:self.lineSize];
     [self.canvas addSubview:self.currentDrawView];
-
-    UITouch *touch = [touches anyObject];
-    CGPoint point = [touch locationInView:self.currentDrawView];
-    [self.currentDrawView addPoint:point];
+    
+    [self.currentDrawView touchesBegan:touches withEvent:event];
 }
 
 - (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
@@ -208,9 +206,7 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
     if (self.isShowingToolPalette || self.isShowingColorPalette) {
         return [super touchesBegan:touches withEvent:event];
     }
-    UITouch *touch = [touches anyObject];
-    CGPoint point = [touch locationInView:self.currentDrawView];
-    [self.currentDrawView addPoint:point];
+    [self.currentDrawView touchesMoved:touches withEvent:event];
 }
 
 - (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
@@ -221,10 +217,7 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
     if (self.isShowingToolPalette || self.isShowingColorPalette) {
         return [super touchesBegan:touches withEvent:event];
     }
-    NSLog(@"touches ended");
-    UITouch *touch = [touches anyObject];
-    CGPoint point = [touch locationInView:self.currentDrawView];
-    [self.currentDrawView setEndPoint:point];
+    [self.currentDrawView touchesEnded:touches withEvent:event];
     [self updateBarButtons];
     
     [UserPrefs storeObject:self.canvas.subviews forKey:KEY_DRAW_VIEWS];

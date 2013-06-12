@@ -20,10 +20,13 @@ typedef enum SDDrawMode{
 }SDDrawMode;
 
 @interface SDDrawView : UIView <NSCoding>
-
+{
+    @private CGPoint *pointsArray[4];
+}
 @property (nonatomic, strong) NSString *title;
-@property (nonatomic, strong) NSMutableDictionary *pointsDict;
-@property (nonatomic, strong) NSMutableArray *pointsArray;
+//@property (nonatomic, strong) NSMutableDictionary *pointsDict;
+@property CGPoint *pointsArray;
+@property (nonatomic, strong) UIBezierPath *mainPath;
 
 
 //Properties from NSUD
@@ -34,9 +37,10 @@ typedef enum SDDrawMode{
 
 + (NSString *)nameForDrawMode:(SDDrawMode)mode;
 - (id)initWithFrame:(CGRect)frame;
-- (void)addPoint:(CGPoint)point;
-- (void)setStartPoint:(CGPoint)point;
-- (void)setEndPoint:(CGPoint)point;
+//- (void)addPoint:(CGPoint)point;
+//- (void)setStartPoint:(CGPoint)point;
+//- (void)setEndPoint:(CGPoint)point;
+- (void)addTouch:(UITouch *)touch;
 - (NSString *)nameForMode:(SDDrawMode)mode;
 
 @end

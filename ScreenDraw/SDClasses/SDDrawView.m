@@ -15,15 +15,18 @@ NSString *const KEY_START_POINT = @"Start_Point";
 NSString *const KEY_END_POINT = @"End_Point";
 
 @interface SDDrawView ()
-
+{
+    uint ctr;
+}
 @end
 
 @implementation SDDrawView
 
 @synthesize title;
 @synthesize lineSize;
-@synthesize pointsDict;
+//@synthesize pointsDict;
 @synthesize strokeColor, fillColor;
+@synthesize mainPath;
 
 + (int)getViewNumber
 {
@@ -38,10 +41,11 @@ NSString *const KEY_END_POINT = @"End_Point";
 
 - (id)initWithFrame:(CGRect)frame {
     if (self = [super initWithFrame:frame]) {
+        [self setUserInteractionEnabled:NO];
         self.title = [NSString stringWithFormat:@"%i", [SDDrawView getViewNumber]];
         NSLog(@"New view with title: %@", self.title);
-        self.pointsDict = [NSMutableDictionary dictionaryWithCapacity:2];
-        self.pointsArray = [NSMutableArray arrayWithCapacity:2];
+        _pointsArray = malloc(4*sizeof(CGPoint));
+        self.mainPath = [UIBezierPath bezierPath];
     }
     return self;
 }
@@ -50,8 +54,7 @@ NSString *const KEY_END_POINT = @"End_Point";
 {
     if (self = [super initWithCoder:aDecoder]) {
         [self setTitle:[aDecoder decodeObject]];
-        [self setPointsDict:[aDecoder decodeObject]];
-        [self setPointsArray:[aDecoder decodeObject]];
+        [self setMainPath:[aDecoder decodeObject]];
         [self setDrawMode:[aDecoder decodeIntegerForKey:KEY_DRAW_MODE]];
         [self setLineSize:[aDecoder decodeIntegerForKey:KEY_LINE_SIZE]];
         [self setStrokeColor:[aDecoder decodeObject]];
@@ -64,8 +67,7 @@ NSString *const KEY_END_POINT = @"End_Point";
 {
     [super encodeWithCoder:aCoder];
     [aCoder encodeObject:self.title];
-    [aCoder encodeObject:self.pointsDict];
-    [aCoder encodeObject:self.pointsArray];
+    [aCoder encodeObject:self.mainPath];
     [aCoder encodeInteger:self.drawMode forKey:KEY_DRAW_MODE];
     [aCoder encodeInteger:self.lineSize forKey:KEY_LINE_SIZE];
     [aCoder encodeObject:self.strokeColor];
@@ -78,96 +80,67 @@ NSString *const KEY_END_POINT = @"End_Point";
     CGContextClearRect(context, rect);
     CGContextSetLineWidth(context, self.lineSize);
     
-    if (self.drawMode == drawModeLine || self.drawMode == drawModeBrush) {
-        CGContextSetFillColorWithColor(context, [self.fillColor CGColor]);
-        CGContextSetStrokeColorWithColor(context, [self.fillColor CGColor]);
-    } else {
-        CGContextSetFillColorWithColor(context, [self.fillColor CGColor]);
-        CGContextSetStrokeColorWithColor(context, [self.strokeColor CGColor]);
-    }
+    CGContextSetFillColorWithColor(context, [self.fillColor CGColor]);
+    CGContextSetStrokeColorWithColor(context, [self.strokeColor CGColor]);
     
-    NSInteger pointCount = [self.pointsDict count];
-    
-    CGPoint startPoint;
-    CGPoint endPoint;
-    BOOL hasStartPoint = NO;
-    BOOL hasEndPoint = NO;
-    if (pointCount > 1 && [self.pointsDict objectForKey:KEY_START_POINT]) {
-        startPoint = [[self.pointsDict objectForKey:KEY_START_POINT] CGPointValue];
-        hasStartPoint = YES;
+    CGContextAddPath(context, self.mainPath.CGPath);
+    CGPathDrawingMode mode = kCGPathFillStroke;
+    if (self.drawMode == drawModeBrush || self.fillColor == [UIColor clearColor]) {
+        mode = kCGPathStroke;
     }
-    if (pointCount > 1 && [self.pointsDict objectForKey:KEY_END_POINT] ) {
-        endPoint = [[self.pointsDict objectForKey:KEY_END_POINT] CGPointValue];
-        hasEndPoint = YES;
-    }
-    
-    if (self.drawMode == drawModeLine && hasStartPoint && hasEndPoint) {
-        CGContextMoveToPoint(context, startPoint.x, startPoint.y);
-        CGContextAddLineToPoint(context, endPoint.x, endPoint.y);
-        CGContextStrokePath(context);
-    } else if (self.drawMode == drawModeRect && hasStartPoint && hasEndPoint) {
-        CGRect newRect = CGRectMake(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-        CGContextStrokeRect(context, newRect);
-        CGContextFillRect(context, newRect);
-    } else if (self.drawMode == drawModeElipse && hasStartPoint && hasEndPoint){
-        CGRect newRect = CGRectMake(startPoint.x, startPoint.y, endPoint.x - startPoint.x, endPoint.y - startPoint.y);
-        CGContextStrokeEllipseInRect(context, newRect);
-        CGContextFillEllipseInRect(context, newRect);
-    } else if (self.drawMode == drawModeBrush && pointCount > 0){
-        CGRect pointRect = CGRectMake(0, 0, self.lineSize, self.lineSize);
-
-        for (int i = 0; i < [self.pointsArray count]; i++) {
-            CGPoint point = [[self.pointsArray objectAtIndex:i] CGPointValue];
-
-            pointRect.origin.x = point.x - pointRect.size.width/2;
-            pointRect.origin.y = point.y - pointRect.size.height/2;
-            CGContextFillEllipseInRect(context, pointRect);
-            if (i > 0 && i < [self.pointsArray count]-1) {
-                CGPoint previousPoint = [[self.pointsArray objectAtIndex:i-1] CGPointValue];
-                CGPoint nextPoint = [[self.pointsArray objectAtIndex:i+1] CGPointValue];
-                CGContextMoveToPoint(context, previousPoint.x, previousPoint.y);
-                
-                CGContextAddQuadCurveToPoint(context, point.x, point.y, nextPoint.x, nextPoint.y);
-                CGContextStrokePath(context);
-                
- 
-            }
-        }  
-    }
+    CGContextClosePath(context);
+    CGContextDrawPath(context, mode);
 }
 
-- (void)setStartPoint:(CGPoint)point
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    CGPoint newPoint = CGPointMake(floor(point.x), ceil(point.y));
-    NSValue *pointValue = [NSValue valueWithCGPoint:newPoint];
-    [self.pointsDict setObject:pointValue forKey:KEY_START_POINT];
+    //set start point
+    UITouch *touch = [touches anyObject];
+    CGPoint touchPoint = [touch locationInView:self];
+    _pointsArray[0]=touchPoint;
 }
 
-
-- (void)setEndPoint:(CGPoint)point
+- (void)touchesMoved:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    CGPoint newPoint = CGPointMake(floor(point.x), ceil(point.y));
-    NSValue *pointValue = [NSValue valueWithCGPoint:newPoint];
-    [self.pointsDict setObject:pointValue forKey:KEY_END_POINT];
+    //set end point
+    UITouch *currentTouch = [touches anyObject];
+    
+    CGPoint startPoint = _pointsArray[0];
+    CGPoint currentPoint = [currentTouch locationInView:self];
+    if (self.drawMode == drawModeLine) {
+        CGMutablePathRef linePath = CGPathCreateMutable();
+        CGPathMoveToPoint(linePath, NULL, startPoint.x, startPoint.y);
+        CGPathAddLineToPoint(linePath, NULL, currentPoint.x, currentPoint.y);
+        self.mainPath = [UIBezierPath bezierPathWithCGPath:linePath];
+        CGPathRelease(linePath);
+    } else if (self.drawMode == drawModeRect){
+        CGRect newRect = CGRectMake(startPoint.x, startPoint.y, currentPoint.x - startPoint.x, currentPoint.y - startPoint.y);
+        self.mainPath = [UIBezierPath bezierPathWithRect:newRect];
+    } else if (self.drawMode == drawModeElipse){
+        CGRect newRect = CGRectMake(startPoint.x, startPoint.y, currentPoint.x - startPoint.x, currentPoint.y - startPoint.y);
+        self.mainPath = [UIBezierPath bezierPathWithOvalInRect:newRect];
+    } else if (self.drawMode == drawModeBrush){ 
+        CGPoint previousPoint = [currentTouch previousLocationInView:self];
+        CGPoint mid1 = midPoint(previousPoint, _pointsArray[0]);
+        CGPoint mid2 = midPoint(currentPoint, previousPoint);
+        CGMutablePathRef brushPath = CGPathCreateMutable();
+        CGPathMoveToPoint(brushPath, NULL, mid1.x, mid1.y);
+        CGPathAddQuadCurveToPoint(brushPath, NULL, previousPoint.x, previousPoint.y, mid2.x, mid2.y);
+        
+        CGPathAddPath(self.mainPath.CGPath, NULL, brushPath);
+        _pointsArray[0] = previousPoint;
+    }
     [self setNeedsDisplay];
 }
 
-
-- (void)addPoint:(CGPoint)point
+- (void)touchesEnded:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    CGPoint newPoint = CGPointMake(floor(point.x), ceil(point.y));
-    NSValue *pointValue = [NSValue valueWithCGPoint:newPoint];
-    if ([self.pointsDict count] == 0) {
-        [self setStartPoint:point];
-    } else if (self.drawMode != drawModeBrush) {
-        [self setEndPoint:point];
-    } else {
-        [self.pointsDict setObject:pointValue forKey:pointValue];
-        [self setNeedsDisplay];
-    }
-    [self.pointsArray addObject:pointValue];
+
 }
 
+CGPoint midPoint(CGPoint p1, CGPoint p2) {
+    return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
+}
 
 - (NSString *)nameForMode:(SDDrawMode)mode
 {

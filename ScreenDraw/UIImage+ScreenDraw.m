@@ -147,6 +147,7 @@
     [image drawInRect:newSize];
     UIImage *resImage = UIGraphicsGetImageFromCurrentImageContext();
     UIGraphicsEndImageContext();
+    NSLog(@"Scaling image to %f by % f", resImage.size.width*resImage.scale, resImage.size.height*resImage.scale);
     return resImage;
 }
 
