@@ -386,10 +386,19 @@ NSString *const KEY_BACKGROUND_IMAGE = @"Background_Image";
 
 - (void)changeBackgroundImage:(UIImage *)image
 {
-    UIImage *scaledIamge = [UIImage rescaleImage:image scaledToRect:self.backgroundImageView.frame];
-    [self.backgroundImageView setImage:scaledIamge];
-    [self.mainColorPalette.backgroundColorPicker setClear:YES];
-    [UserPrefs storeObject:self.backgroundImageView forKey:KEY_BACKGROUND_IMAGE];
+    if (image) {
+        UIImage *scaledIamge = [UIImage rescaleImage:image scaledToRect:self.backgroundImageView.frame];
+        [self.backgroundImageView setImage:scaledIamge];
+        [self.mainColorPalette.backgroundColorPicker setClear:YES];
+        [UserPrefs storeObject:self.backgroundImageView forKey:KEY_BACKGROUND_IMAGE];
+    } else {
+        if (self.backgroundImageView.image) {
+            [self.backgroundImageView setImage:nil];
+            [self.mainColorPalette.backgroundColorPicker setClear:NO];
+            [UserPrefs clearDataForKey:KEY_BACKGROUND_IMAGE];
+        }
+    }
+
 }
 
 #pragma mark - SDColorPaletteDelegate Methods

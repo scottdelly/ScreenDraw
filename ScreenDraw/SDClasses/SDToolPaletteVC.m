@@ -15,6 +15,7 @@
 @property (nonatomic, strong) NSMutableArray *toolButtons;
 @property (nonatomic, strong) UIButton *imageButton;
 @property (nonatomic, strong) UIButton *cameraButton;
+@property (nonatomic, strong) UIButton *clearButton;
 @property (nonatomic, strong) UISlider *lineSizeSlider;
 @property (nonatomic, strong) UIImageView *lineSizePreview;
 @property (nonatomic) BOOL sliderInUse;
@@ -42,6 +43,7 @@
         [self.lineSizePreview setContentMode:UIViewContentModeCenter];
         self.imageButton = [UIButton buttonWithType:UIButtonTypeCustom];
         self.cameraButton = [UIButton buttonWithType:UIButtonTypeCustom];
+        self.clearButton = [UIButton buttonWithType:UIButtonTypeCustom];
         self.sliderInUse = NO;
 
     }
@@ -168,17 +170,14 @@
     
     [self.imageButton addTarget:self action:@selector(imageButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
     [self.view addSubview:self.imageButton];
-    
+    contentY +=self.imageButton.frame.size.height;
+
     if ([UIImagePickerController isSourceTypeAvailable:UIImagePickerControllerSourceTypeCamera]) {
-        contentY +=self.imageButton.frame.size.height + verticalPadding;
-        
+        contentY += verticalPadding;
         [self.cameraButton setFrame:CGRectMake(buttonX, contentY, buttonWidth, buttonHeight)];
         [self.cameraButton setTitle:@"Camera" forState:UIControlStateNormal];
         [self.cameraButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        
-        UIImage *buttonBack = [UIImage roundedRectWithTopFillColor:normalTopColor bottomFillColor:normalBottomColor strokeColor:[UIColor whiteColor] inRect:CGRectMake(0, 0, buttonWidth, buttonHeight)];
-        UIImage *buttonBackSelected = [UIImage roundedRectWithTopFillColor:selectedTopColor bottomFillColor:selectedBottomColor strokeColor:[UIColor whiteColor] inRect:CGRectMake(0, 0, buttonWidth, buttonHeight)];
-        
+                
         [self.cameraButton setBackgroundImage:buttonBack forState:UIControlStateNormal];
         [self.cameraButton setBackgroundImage:buttonBackSelected forState:UIControlStateHighlighted];
         [self.cameraButton setBackgroundImage:buttonBackSelected forState:UIControlStateSelected];
@@ -188,8 +187,24 @@
         
         [self.cameraButton addTarget:self action:@selector(cameraButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
         [self.view addSubview:self.cameraButton];
-
+        contentY += self.cameraButton.frame.size.height;
     }
+    
+    contentY += verticalPadding;
+    
+    [self.clearButton setFrame:CGRectMake(buttonX, contentY, buttonWidth, buttonHeight)];
+    [self.clearButton setTitle:@"Clear Image" forState:UIControlStateNormal];
+    [self.clearButton setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    
+    [self.clearButton setBackgroundImage:buttonBack forState:UIControlStateNormal];
+    [self.clearButton setBackgroundImage:buttonBackSelected forState:UIControlStateHighlighted];
+    [self.clearButton setBackgroundImage:buttonBackSelected forState:UIControlStateSelected];
+    [self.clearButton setBackgroundImage:buttonBackSelected forState:(UIControlStateSelected | UIControlStateHighlighted)];
+    [self.clearButton setTitleShadowColor:[UIColor darkGrayColor] forState:UIControlStateNormal];
+    [self.clearButton.titleLabel setShadowOffset:CGSizeMake(0, -.5)];
+    
+    [self.clearButton addTarget:self action:@selector(clearButtonPressed:) forControlEvents:UIControlEventTouchUpInside];
+    [self.view addSubview:self.clearButton];
 }
 
 - (void)viewDidLoad
@@ -225,9 +240,6 @@
             previewImage = [UIImage elipseWithTopFillColor:previewColor bottomFillColor:previewColor strokeColor:[UIColor clearColor] inRect:previewRect];
         }
         [self.lineSizePreview setImage:previewImage];
-//        CGFloat imageViewX = (self.lineSizePreview.frame.size.width - previewImage.size.width)/2;
-//        [previewImageView setFrame:CGRectMake(imageViewX, imageViewX, previewImageView.frame.size.width, previewImageView.frame.size.height)];
-//        [ addSubview:previewImageView];
     }
     [self.view addSubview:self.lineSizePreview];
 }
@@ -302,6 +314,13 @@
     [self.imagePicker setSourceType:UIImagePickerControllerSourceTypeCamera];
     [[UIApplication sharedApplication] setStatusBarHidden:YES];
     [self presentModalViewController:self.imagePicker animated:YES];
+}
+
+- (void)clearButtonPressed:(id)sender
+{
+    if (self.delegate && [self.delegate respondsToSelector:@selector(changeBackgroundImage:)]) {
+        [self.delegate changeBackgroundImage:nil];
+    }
 }
 
 - (void)sliderWillSlide
