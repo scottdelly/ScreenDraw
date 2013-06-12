@@ -37,10 +37,5 @@ typedef enum SDDrawMode{
 
 + (NSString *)nameForDrawMode:(SDDrawMode)mode;
 - (id)initWithFrame:(CGRect)frame;
-//- (void)addPoint:(CGPoint)point;
-//- (void)setStartPoint:(CGPoint)point;
-//- (void)setEndPoint:(CGPoint)point;
-- (void)addTouch:(UITouch *)touch;
-- (NSString *)nameForMode:(SDDrawMode)mode;
 
 @end

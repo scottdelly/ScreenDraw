@@ -142,16 +142,6 @@ CGPoint midPoint(CGPoint p1, CGPoint p2) {
     return CGPointMake((p1.x + p2.x) * 0.5, (p1.y + p2.y) * 0.5);
 }
 
-- (NSString *)nameForMode:(SDDrawMode)mode
-{
-    if (mode == drawModeElipse) {
-        return @"Elipse";
-    } else if (mode == drawModeRect) {
-        return @"Rectangle";
-    }
-    return @"Line";
-}
-
 - (CGRect) insideRectForRect:(CGRect)outsideRect
 {
     CGRect insideRect = outsideRect;
